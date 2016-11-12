@@ -38,16 +38,22 @@ QueueArray<T>::QueueArray(size_t max_size, std::shared_ptr< std::list<T> > data_
     data_set_ptr_.reset(new T[max_], [] (auto ptr) { delete[] ptr; });
     
     // Is pointer valid?
-    if (data_ptr != nullptr)
+    if (data_ptr.get() != nullptr)
     {
         // Size.
         end_ = data_ptr->size();
 
-        // Copy.
-        for (auto i = 0; i < end_; i++)
+        // Cursor.
+        auto cursor = data_ptr->begin();
+
+        // Copy data set.
+        for (auto i = 0; cursor != data_ptr->end(); i++)
         {
-            // Copy item.
-            data_set_ptr_.get()[i] = data_ptr.get()[i];
+            // Copy.
+            data_set_ptr_.get()[i] = *cursor;
+
+            // Advance.
+            ++cursor;
         }
     }
 }
@@ -61,7 +67,7 @@ QueueArray<T>::QueueArray(size_t max_size, std::shared_ptr< std::list<T> > data_
  */
 template<typename T>
 QueueArray<T>::QueueArray(const QueueArray<T>& origin)
-    : begin_(origin.begin_ % origin.max_), end_((origin.back_ % origin.max_) + 1), max_(origin.max_)
+    : begin_(origin.begin_ % origin.max_), end_((origin.end_ % origin.max_) + 1), max_(origin.max_)
 {
     // Allocate.
     data_set_ptr_.reset(new T[max_], [] (auto ptr) { delete[] ptr; });
@@ -69,11 +75,14 @@ QueueArray<T>::QueueArray(const QueueArray<T>& origin)
     // Is pointer valid?
     if (origin.data_set_ptr_ != nullptr)
     {
-        // Copy.
+        // Size.
+        end_ = origin.size();
+
+        // Copy data set.
         for (auto i = origin.begin_; i < origin.end_; i++)
         {
             // Copy item.
-            data_set_ptr_.get()[i % max_] = origin.data_set_ptr_.get()[i];
+            data_set_ptr_.get()[i % max_] = origin.data_set_ptr_.get()[i % max_];
         }
     }
 }

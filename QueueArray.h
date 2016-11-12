@@ -18,6 +18,7 @@
 //  Header Files  //////////////////////////////////////////////////////////////
 //
 #include <list>
+#include <iterator>
 #include <utility>
 #include <memory>
 //
