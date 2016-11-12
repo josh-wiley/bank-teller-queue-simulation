@@ -8,8 +8,8 @@ OFLAGS = -o PA05
 
 
 # Executable.
-PA05: PA05.o data_generator.o sorter.o QueueList.o QueueArray.o
-	$(CC) $(STD) $(LFLAGS) PA05.o data_generator.o sorter.o QueueList.o QueueArray.o $(OFLAGS)
+PA05: PA05.o data_generator.o sorter.o QueueList.o QueueArray.o Logger.o
+	$(CC) $(STD) $(LFLAGS) PA05.o data_generator.o sorter.o QueueList.o QueueArray.o Logger.o $(OFLAGS)
 
 
 # PA05.
@@ -37,6 +37,11 @@ QueueArray.o: QueueArray.h QueueArray.cpp
 	$(CC) $(STD) $(CFLAGS) QueueArray.cpp
 
 
+# Logger.
+Logger.o: Logger.h Logger.cpp
+	$(CC) $(STD) $(CFLAGS) Logger.cpp
+
+
 # Clean.
 clean:
-	rm -rf *.o PA05 input.txt results.txt
+	rm -rf *.o PA05 data.txt results.txt

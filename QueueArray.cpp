@@ -26,8 +26,10 @@
  * @details Allocates heap memory and copies data if pointer provided is valid
  *
  * @param[in] max_size
+ *            The maximum size (determines heap memory allocated)
  *
  * @param[in] data_ptr
+ *            Pointer to the list to import
  *
  */
 template<typename T>

@@ -32,15 +32,29 @@
 #include "sorter.h"
 #include "QueueList.h"
 #include "QueueArray.h"
+#include "Logger.h"
 //
 //  Main Function Implementation  //////////////////////////////////////////////
 //
 int main()
 {
+  // Checkpoint.
+  std::cout << "\n\nGenerating random data set...\n" << std::endl;
+
   // Data sets.
-  auto data_set1_ptr = std::make_shared<std::list<std::pair<unsigned int, unsigned int>>>();
-  auto data_set2_ptr = std::make_shared<std::list<std::pair<unsigned int, unsigned int>>>();
-  auto data_set3_ptr = std::make_shared<std::list<std::pair<unsigned int, unsigned int>>>();
+  auto data_set1_ptr = std::shared_ptr< std::list< std::pair< unsigned int, unsigned int > > >(
+    new std::list< std::pair< unsigned int, unsigned int > >()
+  );
+  auto data_set2_ptr = std::shared_ptr< std::list< std::pair< unsigned int, unsigned int > > >(
+    new std::list< std::pair< unsigned int, unsigned int > >()
+  );
+  auto data_set3_ptr = std::shared_ptr< std::list< std::pair< unsigned int, unsigned int > > >(
+    new std::list< std::pair< unsigned int, unsigned int > >()
+  );
+
+  // Loggers.
+  auto data_logger = Logger("data.txt");
+  auto stats_logger = Logger("results.txt");
 
   // Generate random data for data set #1.
   data_generator::generateRandomData(
@@ -72,6 +86,9 @@ int main()
     data_set3_ptr
   );
 
+  // Checkpoint.
+  std::cout << "\n\nSorting data set by start time...\n" << std::endl;
+
   // Sort data set #1.
   sorter::counting_sort(
     data_set1_ptr->begin(),
@@ -96,6 +113,17 @@ int main()
     MAX_START_TIME
   );
 
+  // Checkpoint.
+  std::cout << "\n\nLogging data sets...\n" << std::endl;
+
+  // Log data sets.
+  data_logger.log_pair_list("Data set #1", data_set1_ptr);
+  data_logger.log_pair_list("Data set #2", data_set2_ptr);
+  data_logger.log_pair_list("Data set #3", data_set3_ptr);
+
+  // Checkpoint.
+  std::cout << "\n\nCreating queues...\n" << std::endl;
+
   // Create queues.
   auto queue_list1 = QueueList< std::pair<unsigned int, unsigned int> >(data_set1_ptr);
   auto queue_list2 = QueueList< std::pair<unsigned int, unsigned int> >(data_set2_ptr);
@@ -104,11 +132,12 @@ int main()
   auto queue_array2 = QueueArray< std::pair<unsigned int, unsigned int> >(NUM_EVENTS, data_set2_ptr);
   auto queue_array3 = QueueArray< std::pair<unsigned int, unsigned int> >(NUM_EVENTS, data_set3_ptr);
 
-  // Log queues.
-
   // Simulation.
 
   // Log statistics.
+
+  // Checkpoint.
+  std::cout << "\n\nSuccess!\n\n" << std::endl;
 
   // Return.
   return 0;

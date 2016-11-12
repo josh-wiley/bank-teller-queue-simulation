@@ -38,14 +38,15 @@ public:
   bool enqueue(T); /**< Places an item at the end of the queue and returns boolean indicating success */
   bool dequeue(); /**< Removes and returns the item in the front of the queue */
   T peek() const; /**< Returns the item in the front of the queue without modifying the data */
-  size_t size() const; /**< Returns current size of queue */
-  size_t max() const; /**< Returns max size of queue */
 
   QueueArray<T> operator=(const QueueArray<T>&); /**< Overloaded assignment operator. */
 
 // Private members.
 private:
-  std::unique_ptr<T> data_set_ptr_; /**< Underlying data container */
+  size_t size() const; /**< Returns current size of queue */
+  size_t max() const; /**< Returns max size of queue */
+  
+  std::shared_ptr<T> data_set_ptr_; /**< Underlying data container */
   size_t begin_; /**< Current front index */
   size_t end_; /**< Current index indicating first out-of-bound index */
   size_t max_; /** Max size of queue */
