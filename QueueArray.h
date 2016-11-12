@@ -21,11 +21,12 @@
 #include <iterator>
 #include <utility>
 #include <memory>
+#include "Queue.h"
 //
 //  Class Definition  //////////////////////////////////////////////////////////
 //
 template<class T>
-class QueueArray
+class QueueArray : public Queue<T>
 {
 
 // Public members.
@@ -34,10 +35,10 @@ public:
   QueueArray(const QueueArray<T>&); /**< Copy constructor */
   ~QueueArray(); /**< Destructor */
 
-  bool empty() const; /**< Returns boolean indicating if queue is empty */
-  bool enqueue(T); /**< Places an item at the end of the queue and returns boolean indicating success */
-  bool dequeue(); /**< Removes and returns the item in the front of the queue */
-  T peek() const; /**< Returns the item in the front of the queue without modifying the data */
+  bool empty() const override; /**< Returns boolean indicating if queue is empty */
+  bool enqueue(T) override; /**< Places an item at the end of the queue and returns boolean indicating success */
+  bool dequeue() override; /**< Removes and returns the item in the front of the queue */
+  T peek() const override; /**< Returns the item in the front of the queue without modifying the data */
 
   QueueArray<T> operator=(const QueueArray<T>&); /**< Overloaded assignment operator. */
 
