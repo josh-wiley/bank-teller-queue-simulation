@@ -1,0 +1,6 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    // Font size: 12 -> 18
+    "editor.fontSize": 16,
+    "editor.rulers": [ 80 ]
+}

@@ -97,9 +97,10 @@ int main()
   );
 
   // Create queues.
-  auto queue_list1 = QueueList<std::pair<unsigned int, unsigned int>>(data_set1_ptr);
-  auto queue_list2 = QueueList<std::pair<unsigned int, unsigned int>>(data_set2_ptr);
-  auto queue_list3 = QueueList<std::pair<unsigned int, unsigned int>>(data_set3_ptr);
+  auto queue_list1 = QueueList< std::pair<unsigned int, unsigned int> >(data_set1_ptr);
+  auto queue_list2 = QueueList< std::pair<unsigned int, unsigned int> >(data_set2_ptr);
+  auto queue_list3 = QueueList< std::pair<unsigned int, unsigned int> >(data_set3_ptr);
+  auto queue_array1 = QueueArray< std::pair<unsigned int, unsigned int> >(NUM_EVENTS, data_set1_ptr);
 
   // Log queues.
 
