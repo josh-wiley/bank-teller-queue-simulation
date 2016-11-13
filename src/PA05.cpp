@@ -22,7 +22,7 @@
 #define MAX_TRANSACTION_TIME (unsigned int) 100
 #define NUM_TELLERS_SIM_1 (unsigned int) 1
 #define NUM_TELLERS_SIM_2 (unsigned int) 3
-#define NUM_TELLERS_SIM_3 (unsigned int) 12
+#define NUM_TELLERS_SIM_3 (unsigned int) 3
 //
 //  Header Files  //////////////////////////////////////////////////////////////
 //
@@ -30,7 +30,7 @@
 #include <memory>
 #include <list>
 #include <utility>
-#include <algorithm>
+#include <chrono>
 #include "utils/data_generator.h"
 #include "utils/sorter.h"
 #include "Queue/Queue.h"
@@ -172,6 +172,11 @@ int main()
   auto sim3_mixed = ServiceQueueSimulation(sim3_mixed_queues_ptr, NUM_TELLERS_SIM_3);
 
   // Run simulations.
+  sim1_list.run();
+  sim1_array.run();
+  sim2_list.run();
+  sim2_array.run();
+  sim3_mixed.run();
 
   // Log statistics.
 
