@@ -20,6 +20,9 @@
 #define MAX_START_TIME (unsigned int) 100000
 #define MIN_TRANSACTION_TIME (unsigned int) 0
 #define MAX_TRANSACTION_TIME (unsigned int) 100
+#define NUM_TELLERS_SIM_1 (unsigned int) 1
+#define NUM_TELLERS_SIM_2 (unsigned int) 3
+#define NUM_TELLERS_SIM_3 (unsigned int) 12
 //
 //  Header Files  //////////////////////////////////////////////////////////////
 //
@@ -126,7 +129,7 @@ int main()
   // Checkpoint.
   std::cout << "\n\nCreating queues...\n" << std::endl;
 
-  // Create queues.
+  // Queues.
   auto queue_list1 = QueueList< std::pair<unsigned int, unsigned int> >(data_set1_ptr);
   auto queue_list2 = QueueList< std::pair<unsigned int, unsigned int> >(data_set2_ptr);
   auto queue_list3 = QueueList< std::pair<unsigned int, unsigned int> >(data_set3_ptr);
@@ -134,12 +137,41 @@ int main()
   auto queue_array2 = QueueArray< std::pair<unsigned int, unsigned int> >(NUM_EVENTS, data_set2_ptr);
   auto queue_array3 = QueueArray< std::pair<unsigned int, unsigned int> >(NUM_EVENTS, data_set3_ptr);
 
-  // Build lists of queues.
-  auto sim1_queues = std::list<Queue < std::pair< unsigned int, unsigned int > > >();
-  auto sim2_queue = std::list<Queue < std::pair< unsigned int, unsigned int > > >();
-  auto sim3_queue = std::list<Queue < std::pair< unsigned int, unsigned int > > >();
+  // Pointers to lists of queues.
+  auto sim1_list_queues_ptr = std::shared_ptr< std::list<Queue < std::pair< unsigned int, unsigned int > > > >();
+  auto sim1_array_queues_ptr = std::shared_ptr< std::list<Queue < std::pair< unsigned int, unsigned int > > > >();
+  auto sim2_list_queues_ptr = std::shared_ptr< std::list<Queue < std::pair< unsigned int, unsigned int > > > >();
+  auto sim2_array_queues_ptr = std::shared_ptr< std::list<Queue < std::pair< unsigned int, unsigned int > > > >();
+  auto sim3_mixed_queues_ptr = std::shared_ptr< std::list<Queue < std::pair< unsigned int, unsigned int > > > >();
+
+  // Queues for simulation #1.
+  sim1_list_queues_ptr->push_back(queue_list1);
+  sim1_array_queues_ptr->push_back(queue_array1);
+
+  // Queues for simulation #2.
+  sim2_list_queues_ptr->push_back(queue_list1);
+  sim2_list_queues_ptr->push_back(queue_list2);
+  sim2_list_queues_ptr->push_back(queue_list3);
+  sim2_array_queues_ptr->push_back(queue_array1);
+  sim2_array_queues_ptr->push_back(queue_array2);
+  sim2_array_queues_ptr->push_back(queue_array3);
+
+  // Queue for simulation #3.
+  sim3_mixed_queues_ptr->push_back(queue_list1);
+  sim3_mixed_queues_ptr->push_back(queue_array1);
+  sim3_mixed_queues_ptr->push_back(queue_list2);
+  sim3_mixed_queues_ptr->push_back(queue_array2);
+  sim3_mixed_queues_ptr->push_back(queue_list3);
+  sim3_mixed_queues_ptr->push_back(queue_array3);
 
   // Simulations.
+  auto sim1_list = ServiceQueueSimulation(sim1_list_queues_ptr, NUM_TELLERS_SIM_1);
+  auto sim1_array = ServiceQueueSimulation(sim1_array_queues_ptr, NUM_TELLERS_SIM_1);
+  auto sim2_list = ServiceQueueSimulation(sim2_list_queues_ptr, NUM_TELLERS_SIM_2);
+  auto sim2_array = ServiceQueueSimulation(sim2_array_queues_ptr, NUM_TELLERS_SIM_2);
+  auto sim3_mixed = ServiceQueueSimulation(sim3_mixed_queues_ptr, NUM_TELLERS_SIM_3);
+
+  // Run simulations.
 
   // Log statistics.
 

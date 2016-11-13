@@ -34,7 +34,7 @@
  *
  */
 ServiceQueueSimulation::ServiceQueueSimulation(std::shared_ptr< std::list<Queue < std::pair< unsigned int, unsigned int > > > > queues_ptr, unsigned int servicers)
-{}
+    : num_available_servicers_(servicers), customer_queues_(*queues_ptr_) {}
 //
 //  Terminating Precompiler Directives  ////////////////////////////////////////
 //
