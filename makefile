@@ -28,7 +28,7 @@ sorter.o: src/utils/sorter.h src/utils/sorter.cpp
 
 
 # Logger.
-Logger.o: src/Logger/Logger.h src/Logger/Logger.cpp
+Logger.o: src/Logger/Logger.h src/Logger/Logger.cpp ServiceQueueSimulation/ServiceQueueSimulation.h
 	$(CC) $(STD) $(CFLAGS) src/Logger/Logger.cpp
 
 

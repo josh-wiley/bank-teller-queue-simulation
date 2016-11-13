@@ -30,6 +30,7 @@ public:
     Customer(const Customer&); /**< Copy constructor */
     ~Customer(); /**< Destructor */
 
+    bool is_waiting_for_service() const; /**<  */
     unsigned int arrival_time() const; /**< Return the time of arrival */
     unsigned int transaction_length() const; /**< Return the length of the transaction */
     unsigned int departure_time() const; /**< Return the time of departure */
@@ -37,6 +38,7 @@ public:
 
 // Private members.
 private:
+    bool is_waiting_for_service_; /**< Is the customer waiting for service? */
     unsigned int arrival_time_;  /**< Time of arrival */
     unsigned int transaction_length_;  /**< Length of transaction */
     unsigned int departure_time_;  /**< Time of departure */

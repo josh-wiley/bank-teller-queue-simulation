@@ -179,9 +179,29 @@ int main()
   sim3_mixed.run();
 
   // Log statistics.
+  stats_logger.log_sim_results(
+    "Simulation #1 (list-based queues)",
+    std::make_shared< ServiceQueueSimulation >(sim1_list)
+  );
+  stats_logger.log_sim_results(
+    "Simulation #1 (array-based queues)",
+    std::make_shared< ServiceQueueSimulation >(sim1_array)
+  );
+  stats_logger.log_sim_results(
+    "Simulation #2 (list-based queues)",
+    std::make_shared< ServiceQueueSimulation >(sim2_list)
+  );
+  stats_logger.log_sim_results(
+    "Simulation #2 (array-based queues)",
+    std::make_shared< ServiceQueueSimulation >(sim2_array)
+  );
+  stats_logger.log_sim_results(
+    "Simulation #3 (list-based and array-based queues)",
+    std::make_shared< ServiceQueueSimulation >(sim3_mixed)
+  );
 
   // Checkpoint.
-  std::cout << "\n\nSuccess!\n\n" << std::endl;
+  std::cout << "\n\nSuccess! Simulation results have been logged.\n\n" << std::endl;
 
   // Return.
   return 0;

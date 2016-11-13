@@ -96,6 +96,68 @@ void Logger::log_pair_list(std::string header, std::shared_ptr< std::list<std::p
     file_stream_ << "================================================================================\n";
 }
 //
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Logs simulation results to file with specified header
+ *
+ * @param[in] header
+ *            Header to be displayed in record
+ *
+ * @param[in] sim_ptr
+ *            Smart pointer to simulation
+ *
+ */
+void Logger::log_sim_results(std::string header,std::shared_ptr< ServiceQueueSimulation > sim_ptr)
+{
+    // Output.
+    file_stream_ << "\n\n"
+
+                 // Header.
+                 << "================================================================================\n"
+                 << header << '\n'
+                 << "================================================================================\n"
+    
+                 // CPU time.
+                 << "CPU Time: " << sim_ptr->time_elapsed().count() << " milliseconds\n"
+
+                 // Simulation time.
+                 << "Simulation Time: " << sim_ptr->sim_time() << " simulation time units\n"
+
+                 // Average wait time.
+                 << "Average Wait Time: " << sim_ptr->average_customer_wait_time() << " simulation time units\n"
+
+                 // Maximum wait time.
+                 << "Maximum Wait Time: " << sim_ptr->max_customer_wait_time() << " simulation time units\n"
+
+                 // Average line length.
+                 << "Average Line Length: " << sim_ptr->average_line_length() << " customers\n"
+
+                 // Maximum line length.
+                 << "Maximum Line Length: " << sim_ptr->max_line_length() << " customers\n";
+
+    // Idle times.
+    auto idle_times_ptr = sim_ptr->total_servicer_idle_times();
+
+    // Cursor and end.
+    auto cursor_it = idle_times_ptr->begin();
+    auto end_it = idle_times_ptr->end();
+
+    // Teller idle time.
+    for (auto i = 0; cursor_it != end_it; i++)
+    {
+        // Log.
+        file_stream_ << "Servicer " << i + 1 << " Idle Time: " << *cursor_it << '\n';
+
+        // Advance.
+        ++cursor_it;
+    }
+
+    // End.
+    file_stream_ << "================================================================================\n";
+}
+//
 //  Terminating Precompiler Directives  ////////////////////////////////////////
 //
 #endif // LOGGER_CPP_

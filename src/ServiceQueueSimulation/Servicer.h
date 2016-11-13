@@ -30,12 +30,14 @@ public:
     Servicer(const Servicer&); /**< Copy constructor */
     ~Servicer(); /**< Destructor */
 
-    bool handle_customer(unsigned int, Customer&); /**< Handles customer */
-    bool available() const;  /**< Returns availability state of servicer */
+    bool handle_customer(unsigned int, Customer&); /**< Handles customer at current time */
+    bool available(unsigned int) const;  /**< Returns availability state of servicer at given time */
+    unsigned int total_idle_time() const; /**< Returns current total idle time for servicer */
 
 // Private members.
 private:
-    bool is_available_;  /**< Servicer availability state */
+    bool unavailable_until_;  /**< Servicer availability state */
+    unsigned int total_idle_time_; /**< Total time that servicer has been idle */
 
 };
 //
