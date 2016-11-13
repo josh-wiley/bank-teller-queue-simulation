@@ -15,6 +15,10 @@
 #ifndef CUSTOMER_H_
 #define CUSTOMER_H_
 //
+//  Header Files  //////////////////////////////////////////////////////////////
+//
+#include <utility>
+//
 //  Class Definition  //////////////////////////////////////////////////////////
 //
 class Customer
@@ -22,14 +26,19 @@ class Customer
 
 // Public members.
 public:
-    Customer(); /**< Default constructor */
+    Customer(std::pair< unsigned int, unsigned int >); /**< Default constructor */
     Customer(const Customer&); /**< Copy constructor */
     ~Customer(); /**< Destructor */
+
+    unsigned int arrival_time() const; /**< Return the time of arrival */
+    unsigned int transaction_length() const; /**< Return the length of the transaction */
+    unsigned int departure_time() const; /**< Return the time of departure */
+    void complete_transaction(unsigned int); /**< Set departure time */
 
 // Private members.
 private:
     unsigned int arrival_time_;  /**< Time of arrival */
-    unsigned int transaction_time_;  /**< Length of transaction */
+    unsigned int transaction_length_;  /**< Length of transaction */
     unsigned int departure_time_;  /**< Time of departure */
 
 };

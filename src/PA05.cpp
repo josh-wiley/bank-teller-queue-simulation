@@ -31,13 +31,13 @@
 #include <list>
 #include <utility>
 #include <algorithm>
-#include "data_generator.h"
-#include "sorter.h"
-#include "Queue.h"
-#include "QueueList.h"
-#include "QueueArray.h"
-#include "Logger.h"
-#include "ServiceQueueSimulation.h"
+#include "utils/data_generator.h"
+#include "utils/sorter.h"
+#include "Queue/Queue.h"
+#include "Queue/QueueList.h"
+#include "Queue/QueueArray.h"
+#include "Logger/Logger.h"
+#include "ServiceQueueSimulation/ServiceQueueSimulation.h"
 //
 //  Main Function Implementation  //////////////////////////////////////////////
 //

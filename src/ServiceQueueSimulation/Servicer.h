@@ -30,7 +30,7 @@ public:
     Servicer(const Servicer&); /**< Copy constructor */
     ~Servicer(); /**< Destructor */
 
-    bool handle_customer(unsigned int, Customer&);
+    bool handle_customer(unsigned int, Customer&); /**< Handles customer */
     bool available() const;  /**< Returns availability state of servicer */
 
 // Private members.
