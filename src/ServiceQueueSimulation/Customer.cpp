@@ -152,7 +152,7 @@ unsigned int Customer::departure_time() const
 bool Customer::complete_transaction(unsigned int transaction_time)
 {
     // Transaction already completed?
-    if (departure_time_ >= 0)
+    if (departure_time_ > 0)
     {
         // Failure.
         return false;
