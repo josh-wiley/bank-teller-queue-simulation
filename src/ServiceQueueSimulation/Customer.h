@@ -31,7 +31,7 @@ public:
     unsigned int arrival_time() const; /**< Return the time of arrival */
     unsigned int transaction_length() const; /**< Return the length of the transaction */
     unsigned int departure_time() const; /**< Return the time of departure */
-    void complete_transaction(unsigned int); /**< Set departure time */
+    bool complete_transaction(unsigned int); /**< Set departure time */
 
 // Private members.
 private:

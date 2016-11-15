@@ -73,6 +73,98 @@ Customer::Customer(const Customer& origin)
  */
 Customer::~Customer() {}
 //
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns waiting state of customer
+ *
+ * @return Boolean value indicating whether the customer is currently waiting
+ *         for service
+ *
+ */
+bool Customer::is_waiting_for_service() const
+{
+    // Return wating state.
+    return is_waiting_for_service_;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns number indicating arrival time
+ *
+ * @return Unsigned integer value representing the customer's arrival time
+ *
+ */
+unsigned int Customer::arrival_time() const
+{
+    // Return arrival time.
+    return arrival_time_;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns number indicating length of customer transaction
+ *
+ * @return Unsigned integer value representing the customer's transaction length
+ *
+ */
+unsigned int Customer::transaction_length() const
+{
+    // Return transaction length.
+    return transaction_length_;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns number indicating customer's departure time
+ *
+ * @return Unsigned integer value representing the customer's departure time 
+ *         (if not departed, value is 0)
+ *
+ */
+unsigned int Customer::departure_time() const
+{
+    // Return transaction length.
+    return departure_time_;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Sets customer departure time and returns boolean value indicating
+ *          success of operation
+ *
+ * @param[in] transaction_time
+ *            The time at which the transaction started
+ *
+ * @return Boolean value indicating whether or not the customer has already
+ *         completed a transaction
+ *
+ */
+bool Customer::complete_transaction(unsigned int transaction_time)
+{
+    // Transaction already completed?
+    if (departure_time_ >= 0)
+    {
+        // Failure.
+        return false;
+    }
+
+    // Set departure time.
+    departure_time_ = transaction_time + transaction_length_;
+
+    // Success.
+    return true;
+}
+//
 //  Terminating Precompiler Directives  ////////////////////////////////////////
 //
 #endif // CUSTOMER_CPP_
