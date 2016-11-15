@@ -138,8 +138,8 @@ bool QueueArray<T>::enqueue(T input)
       return false;
   }
 
-  // Increment back and place value.
-  data_set_ptr_.get()[end_ - 1];
+  // Place value.
+  data_set_ptr_.get()[end_ - 1] = input;
 
   // Increment end.
   end_++;

@@ -21,7 +21,6 @@
 #include <memory>
 #include <list>
 #include <iterator>
-#include <utility>
 #include <chrono>
 #include "../Queue/Queue.h"
 #include "Servicer.h"
@@ -35,8 +34,8 @@ class ServiceQueueSimulation
 // Public members.
 public:
     ServiceQueueSimulation(
-        std::shared_ptr< std::list<Queue < std::pair< unsigned int, unsigned int > > > >,
-        unsigned int servicers = 1); /**< Parameterized constructor */
+        std::shared_ptr< std::list< Queue < Customer >* > >,
+        unsigned int num_servicers = 1); /**< Parameterized constructor */
     ServiceQueueSimulation(const ServiceQueueSimulation&); /**< Copy constructor */
     ~ServiceQueueSimulation(); /**< Destructor */
 
@@ -56,7 +55,7 @@ public:
 private:
     unsigned int current_sim_time_; /**< Amount of time units that have passed in the simulation */
     std::list< Servicer > servicers_; /**< List of servicers */
-    std::list< Queue < Customer > > customer_queues_; /**< List of customer queues */
+    std::list< Queue < Customer >* > customer_queues_; /**< List of customer queues */
     
     std::chrono::time_point< std::chrono::high_resolution_clock, std::chrono::milliseconds > start_time_; /**< Start time of simulation */
     std::chrono::time_point< std::chrono::high_resolution_clock, std::chrono::milliseconds > end_time_; /**< End time of simulation */

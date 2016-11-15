@@ -24,10 +24,11 @@
 //
 /**
  *
- * @brief Generates pairs of random numbers and places them into provided list
+ * @brief Generates Customers with random data and places them into provided
+ *        list
  *
- * @details Generates the specified amount of random, unsigned integers pairs
- *          which have a range determined by the arguments supplied
+ * @details Generates the specified amount of random, unsigned integers to
+ *          construct Customer objects
  *
  * @param[in] size
  *            The number of random values and final size of the data set
@@ -48,7 +49,7 @@
  *             A shared pointer to the container that data will be placed into
  *
  */
-void data_generator::generateRandomData(unsigned int size, unsigned int left_min, unsigned int left_max, unsigned int right_min, unsigned int right_max, std::shared_ptr<std::list<std::pair<unsigned int, unsigned int>>> data_set_ptr)
+void data_generator::generate_random_data(unsigned int size, unsigned int left_min, unsigned int left_max, unsigned int right_min, unsigned int right_max, std::shared_ptr< std::list< Customer > > data_set_ptr)
 {
   // Ensure data set is empty.
   data_set_ptr->clear();
@@ -64,8 +65,8 @@ void data_generator::generateRandomData(unsigned int size, unsigned int left_min
   for (unsigned int i = 0; i < size; i++)
   {
     // Emplace pair of random values.
-    data_set_ptr->emplace_back(
-      std::make_pair(
+    data_set_ptr->push_back(
+      Customer(
         ((unsigned int) std::rand() % (left_max + 1 - left_min)) + left_min,
         ((unsigned int) std::rand() % (right_max + 1 - right_min)) + right_min
       )

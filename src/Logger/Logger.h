@@ -23,6 +23,7 @@
 #include <list>
 #include <utility>
 #include <iterator>
+#include "../ServiceQueueSimulation/Customer.h"
 #include "../ServiceQueueSimulation/ServiceQueueSimulation.h"
 //
 //  Class Definition  //////////////////////////////////////////////////////////
@@ -36,9 +37,9 @@ public:
     Logger(const Logger&); /**< Copy constructor */
     ~Logger(); /**< Destructor */
 
-    void log_pair_list(
+    void log_customer_list(
         std::string,
-        std::shared_ptr< std::list<std::pair< unsigned int, unsigned int> > >
+        std::shared_ptr< std::list< Customer > >
     ); /**< Logs list of pairs to file */
     void log_sim_results(
         std::string,

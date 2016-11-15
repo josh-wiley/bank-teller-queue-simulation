@@ -20,13 +20,19 @@
 #include <algorithm>
 #include <memory>
 #include <utility>
+#include "../ServiceQueueSimulation/Customer.h"
 //
 //  Namespace Definition  //////////////////////////////////////////////////////
 //
 namespace sorter
 {
   // Counting sort.
-  void counting_sort(std::list<std::pair<unsigned int, unsigned int>>::iterator, std::list<std::pair<unsigned int, unsigned int>>::iterator, unsigned int, unsigned int);
+  void counting_sort_by_arrival_time(
+    std::list< Customer >::iterator,
+    std::list< Customer >::iterator,
+    unsigned int,
+    unsigned int
+  );
 }
 //
 //  Terminating Precompiler Directives  ////////////////////////////////////////

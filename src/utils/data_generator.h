@@ -22,13 +22,21 @@
 #include <chrono>
 #include <list>
 #include <memory>
+#include "../ServiceQueueSimulation/Customer.h"
 //
 //  Namespace Definition  //////////////////////////////////////////////////////
 //
 namespace data_generator
 {
   // Generate random integer data set.
-  void generateRandomData(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, std::shared_ptr<std::list<std::pair<unsigned int, unsigned int>>>); /**< Generates random numbers and stores in list parameter. */
+  void generate_random_data(
+    unsigned int,
+    unsigned int,
+    unsigned int,
+    unsigned int,
+    unsigned int,
+    std::shared_ptr< std::list< Customer > >
+  ); /**< Generates random numbers and stores in list parameter. */
 }
 //
 //  Terminating Precompiler Directives  ////////////////////////////////////////

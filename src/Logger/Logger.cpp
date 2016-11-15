@@ -67,7 +67,7 @@ Logger::~Logger()
  *            Smart pointer to data set
  *
  */
-void Logger::log_pair_list(std::string header, std::shared_ptr< std::list<std::pair< unsigned int, unsigned int> > > data_set_ptr)
+void Logger::log_customer_list(std::string header, std::shared_ptr< std::list< Customer > > data_set_ptr)
 {
     // Header.
     file_stream_ << "\n\n"
@@ -85,8 +85,8 @@ void Logger::log_pair_list(std::string header, std::shared_ptr< std::list<std::p
     for (auto i = 0; cursor_it != end_it; i++)
     {
         // Log.
-        file_stream_ << i + 1 << ". Start time: " << std::get<0>(*cursor_it)
-                              << ", End time: " << std::get<1>(*cursor_it) << '\n';
+        file_stream_ << i + 1 << ". Arrival time: " << cursor_it->arrival_time()
+                              << ", Transaction time: " << cursor_it->transaction_length() << '\n';
 
         // Advance.
         ++cursor_it;

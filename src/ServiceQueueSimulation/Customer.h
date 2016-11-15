@@ -15,10 +15,6 @@
 #ifndef CUSTOMER_H_
 #define CUSTOMER_H_
 //
-//  Header Files  //////////////////////////////////////////////////////////////
-//
-#include <utility>
-//
 //  Class Definition  //////////////////////////////////////////////////////////
 //
 class Customer
@@ -26,7 +22,8 @@ class Customer
 
 // Public members.
 public:
-    Customer(std::pair< unsigned int, unsigned int >); /**< Default constructor */
+    Customer(); /**< Default constructor */
+    Customer(unsigned int, unsigned int); /**< Parameterized constructor */
     Customer(const Customer&); /**< Copy constructor */
     ~Customer(); /**< Destructor */
 

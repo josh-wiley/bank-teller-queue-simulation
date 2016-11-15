@@ -18,17 +18,17 @@ PA05.o: src/PA05.cpp src/utils/data_generator.h src/utils/sorter.h src/Logger/Lo
 
 
 # Data generator.
-data_generator.o: src/utils/data_generator.h src/utils/data_generator.cpp
+data_generator.o: src/utils/data_generator.h src/utils/data_generator.cpp src/ServiceQueueSimulation/Customer.h
 	$(CC) $(STD) $(CFLAGS) src/utils/data_generator.cpp
 
 
 # Sorter.
 sorter.o: src/utils/sorter.h src/utils/sorter.cpp
-	$(CC) $(STD) $(CFLAGS) sorter.cpp
+	$(CC) $(STD) $(CFLAGS) src/utils/sorter.cpp
 
 
 # Logger.
-Logger.o: src/Logger/Logger.h src/Logger/Logger.cpp ServiceQueueSimulation/ServiceQueueSimulation.h
+Logger.o: src/Logger/Logger.h src/Logger/Logger.cpp src/ServiceQueueSimulation/ServiceQueueSimulation.h
 	$(CC) $(STD) $(CFLAGS) src/Logger/Logger.cpp
 
 

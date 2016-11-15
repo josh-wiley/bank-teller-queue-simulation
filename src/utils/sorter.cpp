@@ -32,7 +32,7 @@
  *            The terminating iterator used to determine the end of the data set
  *
  */
-void sorter::counting_sort(std::list<std::pair<unsigned int, unsigned int>>::iterator begin_it, std::list<std::pair<unsigned int, unsigned int>>::iterator end_it, unsigned int min_value, unsigned int max_value)
+void sorter::counting_sort_by_arrival_time(std::list< Customer >::iterator begin_it, std::list< Customer >::iterator end_it, unsigned int min_value, unsigned int max_value)
 {
   // Array of frequencies.
   auto frequencies = std::shared_ptr<unsigned int>(
@@ -41,13 +41,13 @@ void sorter::counting_sort(std::list<std::pair<unsigned int, unsigned int>>::ite
   );
 
   // Array buffer of sorted values (for random-access in insertion).
-  auto temp_result = std::shared_ptr<std::pair<unsigned int, unsigned int>>(
-    new std::pair<unsigned int, unsigned int>[distance(begin_it, end_it)],
+  auto temp_result = std::shared_ptr< Customer >(
+    new Customer[distance(begin_it, end_it)],
     [] (auto ptr) { delete[] ptr; }
   );
 
   // Copy of data set.
-  auto data_copy = std::list<std::pair<unsigned int, unsigned int>>();
+  auto data_copy = std::list< Customer >();
 
   // Clear frequencies.
   for (unsigned int i = 0; i < max_value + 1; i++)
@@ -60,7 +60,7 @@ void sorter::counting_sort(std::list<std::pair<unsigned int, unsigned int>>::ite
   std::for_each(begin_it, end_it, [&, frequencies] (auto i)
   {
     // Increment.
-    frequencies.get()[std::get<0>(i)]++;
+    frequencies.get()[i.arrival_time()]++;
 
     // Add to copy.
     data_copy.push_back(i);
@@ -77,7 +77,7 @@ void sorter::counting_sort(std::list<std::pair<unsigned int, unsigned int>>::ite
   std::for_each(data_copy.rbegin(), data_copy.rend(), [&, frequencies, temp_result] (auto i)
   {
     // Decrement and insert at index.
-    temp_result.get()[--frequencies.get()[std::get<0>(i)]] = i;
+    temp_result.get()[--frequencies.get()[i.arrival_time()]] = i;
   });
 
   // Cursor.
