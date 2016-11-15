@@ -34,10 +34,8 @@
  *
  */
 ServiceQueueSimulation::ServiceQueueSimulation(std::shared_ptr< std::list< Queue < Customer >* > > queues_ptr, unsigned int num_servicers)
-    : is_complete_(false), current_sim_time_(0),
-      customer_queues_(*queues_ptr), total_customer_wait_time_(0),
-      max_customer_wait_time_(0), total_line_length_(0), max_line_length_(0),
-      line_updates_(0)
+    : is_complete_(false), current_sim_time_(0), customer_queues_(*queues_ptr),
+      total_line_length_(0), max_line_length_(0), line_updates_(0)
 {
     // Ensure servicers list is in initial state.
     servicers_.clear();
@@ -65,8 +63,6 @@ ServiceQueueSimulation::ServiceQueueSimulation(const ServiceQueueSimulation& ori
     : is_complete_(origin.is_complete_), current_sim_time_(origin.current_sim_time_),
       servicers_(origin.servicers_), customer_queues_(origin.customer_queues_),
       start_time_(origin.start_time_), end_time_(origin.end_time_),
-      total_customer_wait_time_(origin.total_customer_wait_time_),
-      max_customer_wait_time_(origin.max_customer_wait_time_),
       total_line_length_(origin.total_line_length_),
       max_line_length_(origin.max_line_length_), line_updates_(origin.line_updates_) {}
 //
@@ -106,10 +102,10 @@ bool ServiceQueueSimulation::is_complete() const
  * @return Milliseconds since start of run
  *
  */
-std::chrono::duration< std::chrono::milliseconds > ServiceQueueSimulation::time_elapsed() const
+unsigned int ServiceQueueSimulation::time_elapsed() const
 {
     // Return time elapsed.
-    return start_time_ - end_time_;
+    return start_time_.time_since_epoch().count() - end_time_.time_since_epoch().count();
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -127,7 +123,24 @@ unsigned int ServiceQueueSimulation::sim_time() const
     // Return elapsed simulation time.
     return current_sim_time_;
 }
-unsigned int ServiceQueueSimulation::average_customer_wait_time() const {}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Calculates and returns average customer wait time
+ *
+ * @return Average wait time per customer
+ *
+ */
+unsigned int ServiceQueueSimulation::average_customer_wait_time() const 
+{
+    // Total wait time.
+    auto total_wait = (unsigned int) 0;
+
+    // Aggregate.
+    std::for_each();
+}
 unsigned int ServiceQueueSimulation::max_customer_wait_time() const {}
 unsigned int ServiceQueueSimulation::average_line_length() const {}
 unsigned int ServiceQueueSimulation::max_line_length() const {}

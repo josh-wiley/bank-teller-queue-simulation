@@ -41,7 +41,7 @@ public:
     ~ServiceQueueSimulation(); /**< Destructor */
 
     bool is_complete() const; /**< Is the simulation complete? */
-    std::chrono::duration<std::chrono::milliseconds> time_elapsed() const; /**< Amount of time that the simulation took to finish, or has been running for */
+    unsigned int time_elapsed() const; /**< Amount of time (ms) that the simulation took to finish, or has been running for */
     unsigned int sim_time() const; /**< Total time units passed in simulation */
     unsigned int average_customer_wait_time() const; /**< Average customer wait time */
     unsigned int max_customer_wait_time() const; /**< Maximum customer wait time */
@@ -62,8 +62,6 @@ private:
     
     std::chrono::time_point< std::chrono::high_resolution_clock > start_time_; /**< Start time of simulation */
     std::chrono::time_point< std::chrono::high_resolution_clock > end_time_; /**< End time of simulation */
-    unsigned int total_customer_wait_time_; /**< Total wait time for all customers in simulation */
-    unsigned int max_customer_wait_time_; /**< Maximum wait time for all customers in simulation */
     unsigned int total_line_length_; /**< Total length of line across all simulation updates (used for calculating line averages) */
     unsigned int max_line_length_; /**< Maximum length of line in simulation */
     unsigned int line_updates_; /**< How many line updates occurred in simulation (used for calculating line averages) */

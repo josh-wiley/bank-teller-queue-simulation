@@ -120,7 +120,7 @@ void Logger::log_sim_results(std::string header,std::shared_ptr< ServiceQueueSim
                  << "================================================================================\n"
     
                  // CPU time.
-                 << "CPU Time: " << sim_ptr->time_elapsed().count() << " milliseconds\n"
+                 << "CPU Time: " << sim_ptr->time_elapsed() << " milliseconds\n"
 
                  // Simulation time.
                  << "Simulation Time: " << sim_ptr->sim_time() << " simulation time units\n"
