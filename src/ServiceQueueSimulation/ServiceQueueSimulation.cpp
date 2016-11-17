@@ -56,12 +56,9 @@ ServiceQueueSimulation::ServiceQueueSimulation(
         // Push new servicer to list.
         servicers_.push_back(Servicer());
     }
-
-    // Add queue.
-    customer_queues_.push_back(queue_ptr);
     
-    // Add rest..
-    add_queue(rest_ptrs...);
+    // Add queues.
+    add_queue(queue_ptr, rest_ptrs...);
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -164,7 +161,21 @@ std::shared_ptr< std::list< unsigned int > > ServiceQueueSimulation::total_servi
 bool ServiceQueueSimulation::waiting_customers() const {}
 void ServiceQueueSimulation::process_next_customer() {}
 void ServiceQueueSimulation::run() {}
-
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Variadic templated queue adder to allow for derived classed of base Queue
+ *          class
+ *
+ * @param[in] queue_ptr
+ *            Smart pointer to queue to be added
+ *
+ * @param[in] rest_ptrs
+ *            Parameter pack of smart pointers to customer queues
+ *
+ */
 template < class T, class ... V >
 void ServiceQueueSimulation::add_queue(T queue_ptr, V ... rest_ptrs)
 {
@@ -172,14 +183,24 @@ void ServiceQueueSimulation::add_queue(T queue_ptr, V ... rest_ptrs)
     add_queue(queue_ptr);
     add_queue(rest_ptrs...);
 }
-    
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Variadic templated queue adder to allow for derived classed of base Queue
+ *          class
+ *
+ * @param[in] queue_ptr
+ *            Smart pointer to queue to be added
+ *
+ */
 template < class T >
 void ServiceQueueSimulation::add_queue(T queue_ptr)
 {
     // Add queue.
     customer_queues_.push_back(queue_ptr);
 }
-
 //
 //  Terminating Precompiler Directives  ////////////////////////////////////////
 //

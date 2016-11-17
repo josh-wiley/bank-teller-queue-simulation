@@ -35,7 +35,7 @@ class ServiceQueueSimulation
 
 // Public members.
 public:
-    template<typename T, class ... V>
+    template<class T, class ... V>
     ServiceQueueSimulation(
         unsigned int num_servicers,
         std::shared_ptr< std::list< std::shared_ptr< std::list < Customer > > > >,
@@ -78,6 +78,10 @@ private:
     void add_queue(T); /**< Variadic template to add queue */
 
 };
+//
+//  Implementation Files  //////////////////////////////////////////////////////
+//
+#include "ServiceQueueSimulation.cpp"
 //
 //  Terminating Precompiler Directives  ////////////////////////////////////////
 //
