@@ -24,7 +24,7 @@
 //
 /**
  *
- * @details Constructs customer queues and list of servicers
+ * @details Templated constructor
  *
  * @param[in] queues_ptr
  *            A smart pointer to the list of queues representing customers
@@ -33,12 +33,22 @@
  *            The number of servicers available to serve the queues of customers
  *
  */
-ServiceQueueSimulation::ServiceQueueSimulation(std::shared_ptr< std::list< Queue < Customer >* > > queues_ptr, unsigned int num_servicers)
-    : is_complete_(false), current_sim_time_(0), customer_queues_(*queues_ptr),
-      total_line_length_(0), max_line_length_(0), line_updates_(0)
+template< class T, class ... V >
+ServiceQueueSimulation::ServiceQueueSimulation(
+    unsigned int num_servicers,
+    std::shared_ptr< std::list< std::shared_ptr< std::list < Customer > > > > events_ptrs,
+    T queue_ptr,
+    V ... rest_ptrs
+)
+    : is_complete_(false), current_sim_time_(0), total_line_length_(0),
+      max_line_length_(0), line_updates_(0)
 {
-    // Ensure servicers list is in initial state.
-    servicers_.clear();
+    // Import pointers to event sources.
+    std::for_each(events_ptrs->begin(), events_ptrs->end(), [&, this] (auto ptr)
+    {
+        // Import.
+        arrival_events_.push_back(ptr);
+    });
 
     // Create servicers.
     for (auto i = 0; i < num_servicers; i++)
@@ -46,6 +56,12 @@ ServiceQueueSimulation::ServiceQueueSimulation(std::shared_ptr< std::list< Queue
         // Push new servicer to list.
         servicers_.push_back(Servicer());
     }
+
+    // Add queue.
+    customer_queues_.push_back(queue_ptr);
+    
+    // Add rest..
+    add_queue(rest_ptrs...);
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -139,7 +155,7 @@ unsigned int ServiceQueueSimulation::average_customer_wait_time() const
     auto total_wait = (unsigned int) 0;
 
     // Aggregate.
-    std::for_each();
+    return 0;
 }
 unsigned int ServiceQueueSimulation::max_customer_wait_time() const {}
 unsigned int ServiceQueueSimulation::average_line_length() const {}
@@ -148,6 +164,22 @@ std::shared_ptr< std::list< unsigned int > > ServiceQueueSimulation::total_servi
 bool ServiceQueueSimulation::waiting_customers() const {}
 void ServiceQueueSimulation::process_next_customer() {}
 void ServiceQueueSimulation::run() {}
+
+template < class T, class ... V >
+void ServiceQueueSimulation::add_queue(T queue_ptr, V ... rest_ptrs)
+{
+    // Add and recurse (kinda).
+    add_queue(queue_ptr);
+    add_queue(rest_ptrs...);
+}
+    
+template < class T >
+void ServiceQueueSimulation::add_queue(T queue_ptr)
+{
+    // Add queue.
+    customer_queues_.push_back(queue_ptr);
+}
+
 //
 //  Terminating Precompiler Directives  ////////////////////////////////////////
 //

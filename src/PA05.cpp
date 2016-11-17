@@ -130,44 +130,51 @@ int main()
   // Checkpoint.
   std::cout << "\n\nCreating queues...\n" << std::endl;
 
-  // Customer queues.
-  auto queue_list1 = QueueList< Customer >(data_set1_ptr);
-  auto queue_list2 = QueueList< Customer >(data_set2_ptr);
-  auto queue_list3 = QueueList< Customer >(data_set3_ptr);
-  auto queue_array1 = QueueArray< Customer >(NUM_EVENTS, data_set1_ptr);
-  auto queue_array2 = QueueArray< Customer >(NUM_EVENTS, data_set2_ptr);
-  auto queue_array3 = QueueArray< Customer >(NUM_EVENTS, data_set3_ptr);
+  // Pointers to lists of pointers to lists of customers.
+  auto sim1_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >();
+  auto sim2_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >();
+  auto sim3_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >();
+  auto sim4_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >();
 
-  // Pointers to list of customer queue pointers.
-  auto sim1_list_queues_ptr = std::shared_ptr< std::list< Queue < Customer >* > >();
-  auto sim2_mixed_queues_ptr = std::shared_ptr< std::list< Queue < Customer >* > >();
-  auto sim3_array_queues_ptr = std::shared_ptr< std::list< Queue < Customer >* > >();
-  auto sim4_mixed_queues_ptr = std::shared_ptr< std::list< Queue < Customer >* > >();
 
-  // Add customer queue pointer to simulation #1 queue list.
-  sim1_list_queues_ptr->push_back(&queue_list1);
+  // Populate lists.
+  sim1_customer_events_ptr->push_back(data_set1_ptr);
+  sim2_customer_events_ptr->push_back(data_set1_ptr);
+  sim2_customer_events_ptr->push_back(data_set2_ptr);
+  sim2_customer_events_ptr->push_back(data_set3_ptr);
+  sim3_customer_events_ptr->push_back(data_set1_ptr);
+  sim3_customer_events_ptr->push_back(data_set2_ptr);
+  sim3_customer_events_ptr->push_back(data_set3_ptr);
+  sim4_customer_events_ptr->push_back(data_set1_ptr);
+  sim4_customer_events_ptr->push_back(data_set2_ptr);
 
-  // Add customer queue pointers to simulation #2 queues list.
-  sim2_mixed_queues_ptr->push_back(&queue_array1);
-  sim2_mixed_queues_ptr->push_back(&queue_list2);
-  sim2_mixed_queues_ptr->push_back(&queue_array3);
-
-  // Add customer queue pointer to simulation #3 queues list.
-  sim3_array_queues_ptr->push_back(&queue_array1);
-
-  // Add queue pointers to simulation #4 queues list.
-  sim4_mixed_queues_ptr->push_back(&queue_list1);
-  sim4_mixed_queues_ptr->push_back(&queue_array1);
-  sim4_mixed_queues_ptr->push_back(&queue_list2);
-  sim4_mixed_queues_ptr->push_back(&queue_array2);
-  sim4_mixed_queues_ptr->push_back(&queue_list3);
-  sim4_mixed_queues_ptr->push_back(&queue_array3);
 
   // Simulations.
-  auto sim1 = ServiceQueueSimulation(sim1_list_queues_ptr, NUM_TELLERS_SIM_1);
-  auto sim2 = ServiceQueueSimulation(sim2_mixed_queues_ptr, NUM_TELLERS_SIM_2);
-  auto sim3 = ServiceQueueSimulation(sim3_array_queues_ptr, NUM_TELLERS_SIM_2);
-  auto sim4 = ServiceQueueSimulation(sim4_mixed_queues_ptr, NUM_TELLERS_SIM_4);
+  auto sim1 = ServiceQueueSimulation(
+    NUM_TELLERS_SIM_1,
+    sim1_customer_events_ptr,
+    std::shared_ptr< QueueArray< Customer > >()
+  );
+  auto sim2 = ServiceQueueSimulation(
+    NUM_TELLERS_SIM_2,
+    sim2_customer_events_ptr,
+    std::shared_ptr<QueueArray< Customer > >(),
+    std::shared_ptr< QueueList< Customer > >(),
+    std::shared_ptr< QueueArray< Customer > >()
+  );
+  auto sim3 = ServiceQueueSimulation(
+    NUM_TELLERS_SIM_3,
+    sim3_customer_events_ptr,
+    std::shared_ptr< QueueList< Customer > >(),
+    std::shared_ptr< QueueArray< Customer > >(),
+    std::shared_ptr< QueueList< Customer > >()
+  );
+  auto sim4 = ServiceQueueSimulation(
+    NUM_TELLERS_SIM_4,
+    sim4_customer_events_ptr,
+    std::shared_ptr< QueueArray< Customer > >(),
+    std::shared_ptr< QueueList< Customer > >()
+  );
 
   // Run simulations.
   sim1.run();

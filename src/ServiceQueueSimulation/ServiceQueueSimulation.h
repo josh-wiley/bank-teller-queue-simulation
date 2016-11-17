@@ -23,6 +23,8 @@
 #include <iterator>
 #include <chrono>
 #include "../Queue/Queue.h"
+#include "../Queue/QueueList.h"
+#include "../Queue/QueueArray.h"
 #include "Servicer.h"
 #include "Customer.h"
 //
@@ -33,9 +35,11 @@ class ServiceQueueSimulation
 
 // Public members.
 public:
+    template<typename T, class ... V>
     ServiceQueueSimulation(
-        std::shared_ptr< std::list< Queue < Customer >* > >,
-        unsigned int num_servicers = 1
+        unsigned int num_servicers,
+        std::shared_ptr< std::list< std::shared_ptr< std::list < Customer > > > >,
+        T, V...
     ); /**< Parameterized constructor */
     ServiceQueueSimulation(const ServiceQueueSimulation&); /**< Copy constructor */
     ~ServiceQueueSimulation(); /**< Destructor */
@@ -58,13 +62,20 @@ private:
     bool is_complete_; /**< Is the simulation complete? */
     unsigned int current_sim_time_; /**< Amount of time units that have passed in the simulation */
     std::list< Servicer > servicers_; /**< List of servicers */
-    std::list< Queue < Customer >* > customer_queues_; /**< List of customer queues */
+    std::list< std::shared_ptr< Queue < Customer > > > customer_queues_; /**< List of customer queues */
+    std::list< std::shared_ptr< std::list< Customer > > > arrival_events_; /** List of pointers to lists of customer arrival events */
     
     std::chrono::time_point< std::chrono::high_resolution_clock > start_time_; /**< Start time of simulation */
     std::chrono::time_point< std::chrono::high_resolution_clock > end_time_; /**< End time of simulation */
     unsigned int total_line_length_; /**< Total length of line across all simulation updates (used for calculating line averages) */
     unsigned int max_line_length_; /**< Maximum length of line in simulation */
     unsigned int line_updates_; /**< How many line updates occurred in simulation (used for calculating line averages) */
+
+    template < class T, class ... V >
+    void add_queue(T, V...); /**< Variadic template to add queue and recurse (kinda) */
+    
+    template < class T >
+    void add_queue(T); /**< Variadic template to add queue */
 
 };
 //

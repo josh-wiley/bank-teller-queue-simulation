@@ -33,7 +33,7 @@ Logger.o: src/Logger/Logger.h src/Logger/Logger.cpp src/ServiceQueueSimulation/S
 
 
 # Service queue simulation.
-ServiceQueueSimulation.o: src/ServiceQueueSimulation/ServiceQueueSimulation.h src/ServiceQueueSimulation/ServiceQueueSimulation.cpp src/Queue/Queue.h src/ServiceQueueSimulation/Customer.h src/ServiceQueueSimulation/Servicer.h
+ServiceQueueSimulation.o: src/ServiceQueueSimulation/ServiceQueueSimulation.h src/ServiceQueueSimulation/ServiceQueueSimulation.cpp src/Queue/Queue.h src/Queue/QueueList.h src/Queue/QueueArray.h src/ServiceQueueSimulation/Customer.h src/ServiceQueueSimulation/Servicer.h
 	$(CC) $(STD) $(CFLAGS) src/ServiceQueueSimulation/ServiceQueueSimulation.cpp
 
 
