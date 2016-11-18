@@ -40,15 +40,15 @@ ServiceQueueSimulation::ServiceQueueSimulation(
     T queue_ptr,
     V ... rest_ptrs
 )
-    : is_complete_(false), current_sim_time_(0), total_line_length_(0),
-      max_line_length_(0), line_updates_(0)
+    : is_complete_(false), current_sim_time_(0), max_line_length_(0),
+      total_line_length_(0), line_updates_(0)
 {
 
     // Import pointers to event sources.
     std::for_each(events_ptrs->begin(), events_ptrs->end(), [&, this] (auto ptr)
     {
         // Import.
-        arrival_events_.push_back(ptr);
+        customer_events_.push_back(ptr);
     });
 
     // Create servicers.
@@ -76,9 +76,9 @@ ServiceQueueSimulation::ServiceQueueSimulation(
 ServiceQueueSimulation::ServiceQueueSimulation(const ServiceQueueSimulation& origin)
     : is_complete_(origin.is_complete_), current_sim_time_(origin.current_sim_time_),
       servicers_(origin.servicers_), customer_queues_(origin.customer_queues_),
-      start_time_(origin.start_time_), end_time_(origin.end_time_),
-      total_line_length_(origin.total_line_length_),
-      max_line_length_(origin.max_line_length_), line_updates_(origin.line_updates_) {}
+      customer_events_(origin.customer_events_), start_time_(origin.start_time_),
+      end_time_(origin.end_time_), max_line_length_(origin.max_line_length_),
+      total_line_length_(origin.total_line_length_), line_updates_(origin.line_updates_) {}
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
 //
@@ -147,18 +147,121 @@ unsigned int ServiceQueueSimulation::sim_time() const
  * @return Average wait time per customer
  *
  */
-unsigned int ServiceQueueSimulation::average_customer_wait_time() const 
+float ServiceQueueSimulation::average_customer_wait_time() const 
 {
     // Total wait time.
-    auto total_wait = (unsigned int) 0;
+    auto total_wait_ptr = std::shared_ptr< unsigned int >(0);
+    auto total_events_ptr = std::shared_ptr< unsigned int >(0);
 
-    // Aggregate.
-    return 0;
+    // Each events list.
+    std::for_each(customer_events_.begin(), customer_events_.end(), [total_wait_ptr, total_events_ptr] (auto events_list_ptr)
+    {
+        // Each event.
+        std::for_each(events_list_ptr->begin(), events_list_ptr->end(), [total_wait_ptr, total_events_ptr] (auto event)
+        {
+            // Wait time.
+            *total_wait_ptr += event.departure_time() - event.transaction_length() - event.arrival_time();
+
+            // Total.
+            (*total_events_ptr)++;
+        });
+    });
+
+    // Return.
+    return *total_wait_ptr / *total_events_ptr;
 }
-unsigned int ServiceQueueSimulation::max_customer_wait_time() const {}
-unsigned int ServiceQueueSimulation::average_line_length() const {}
-unsigned int ServiceQueueSimulation::max_line_length() const {}
-std::shared_ptr< std::list< unsigned int > > ServiceQueueSimulation::total_servicer_idle_times() const {}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Computes and returns max customer wait time
+ *
+ * @return Max wait time per customer
+ *
+ */
+unsigned int ServiceQueueSimulation::max_customer_wait_time() const
+{
+    // Max wait time.
+    auto max_wait_ptr = std::shared_ptr< unsigned int >(0);
+    auto current_wait_ptr = std::shared_ptr< unsigned int >(0);
+
+    // Each events list.
+    std::for_each(customer_events_.begin(), customer_events_.end(), [max_wait_ptr, current_wait_ptr] (auto events_list_ptr)
+    {
+        // Each event.
+        std::for_each(events_list_ptr->begin(), events_list_ptr->end(), [max_wait_ptr, current_wait_ptr] (auto event)
+        {
+            // Get wait time.
+            *current_wait_ptr = event.departure_time() - event.transaction_length() - event.arrival_time();
+
+            // Is new max?
+            if (*current_wait_ptr > *max_wait_ptr)
+            {
+                // Assign new max.
+                *max_wait_ptr = *current_wait_ptr;
+            }
+        });
+    });
+
+    // Return max.
+    return *max_wait_ptr;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Computes and returns average line length
+ *
+ * @return Average line length of simulation
+ *
+ */
+float ServiceQueueSimulation::average_line_length() const
+{
+    // Return average.
+    return line_updates_ / total_line_length_;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns max line length
+ *
+ * @return Max line length of simulation
+ *
+ */
+unsigned int ServiceQueueSimulation::max_line_length() const
+{
+    // Return max.
+    return max_line_length_;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns smart pointer to a list of idle times for each servicer
+ *
+ * @return Smart pointer to a list of idle times for each servicer
+ *
+ */
+std::shared_ptr< std::list< unsigned int > > ServiceQueueSimulation::total_servicer_idle_times() const
+{
+    // Save list.
+    auto totals_list_ptr = std::shared_ptr< std::list< unsigned int > >( new std::list< unsigned int >());
+
+    // Add totals.
+    std::for_each(servicers_.begin(), servicers_.end(), [totals_list_ptr] (auto servicer)
+    {
+        // Add idle time.
+        totals_list_ptr->push_back(servicer.total_idle_time());
+    });
+
+    // Return.
+    return totals_list_ptr;
+}
 bool ServiceQueueSimulation::waiting_customers() const {}
 void ServiceQueueSimulation::process_next_customer() {}
 void ServiceQueueSimulation::run() {}

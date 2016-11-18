@@ -48,9 +48,9 @@ public:
     bool is_complete() const; /**< Is the simulation complete? */
     unsigned int time_elapsed() const; /**< Amount of time (ms) that the simulation took to finish, or has been running for */
     unsigned int sim_time() const; /**< Total time units passed in simulation */
-    unsigned int average_customer_wait_time() const; /**< Average customer wait time */
+    float average_customer_wait_time() const; /**< Average customer wait time */
     unsigned int max_customer_wait_time() const; /**< Maximum customer wait time */
-    unsigned int average_line_length() const; /**< Average length of line */
+    float average_line_length() const; /**< Average length of line */
     unsigned int max_line_length() const; /**< Maximum length of line */
     std::shared_ptr< std::list< unsigned int > > total_servicer_idle_times() const; /**< Total idle times for each servicer */
 
@@ -64,12 +64,12 @@ private:
     unsigned int current_sim_time_; /**< Amount of time units that have passed in the simulation */
     std::list< Servicer > servicers_; /**< List of servicers */
     std::list< std::shared_ptr< Queue < Customer > > > customer_queues_; /**< List of customer queues */
-    std::list< std::shared_ptr< std::list< Customer > > > arrival_events_; /** List of pointers to lists of customer arrival events */
+    std::list< std::shared_ptr< std::list< Customer > > > customer_events_; /** List of pointers to lists of customer arrival events */
 
     std::chrono::time_point< std::chrono::high_resolution_clock > start_time_; /**< Start time of simulation */
     std::chrono::time_point< std::chrono::high_resolution_clock > end_time_; /**< End time of simulation */
+    unsigned int max_line_length_; /**< Max line length during simulation */
     unsigned int total_line_length_; /**< Total length of line across all simulation updates (used for calculating line averages) */
-    unsigned int max_line_length_; /**< Maximum length of line in simulation */
     unsigned int line_updates_; /**< How many line updates occurred in simulation (used for calculating line averages) */
 
     template < class T, class ... V >

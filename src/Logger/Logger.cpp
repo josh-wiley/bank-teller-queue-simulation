@@ -111,6 +111,7 @@ void Logger::log_customer_list(std::string header, std::shared_ptr< std::list< C
  */
 void Logger::log_sim_results(std::string header, std::shared_ptr< ServiceQueueSimulation > sim_ptr)
 {
+    std::cout << "\n\nStarting log...\n" << std::endl;
     // Output.
     file_stream_ << "\n\n"
 
@@ -144,6 +145,8 @@ void Logger::log_sim_results(std::string header, std::shared_ptr< ServiceQueueSi
     auto cursor_it = idle_times_ptr->begin();
     auto end_it = idle_times_ptr->end();
 
+    std::cout << "\n\nLogging tellers...\n" << std::endl;
+
     // Teller idle time.
     for (auto i = 0; cursor_it != end_it; i++)
     {
@@ -156,6 +159,7 @@ void Logger::log_sim_results(std::string header, std::shared_ptr< ServiceQueueSi
 
     // End.
     file_stream_ << "================================================================================\n";
+    std::cout << "\n\nEnding log...\n" << std::endl;
 }
 //
 //  Terminating Precompiler Directives  ////////////////////////////////////////
