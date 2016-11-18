@@ -8,8 +8,8 @@ OFLAGS = -o PA05
 
 
 # Executable.
-PA05: PA05.o data_generator.o sorter.o Logger.o Customer.o Servicer.o
-	$(CC) $(STD) $(LFLAGS) PA05.o data_generator.o sorter.o Logger.o Customer.o Servicer.o $(OFLAGS)
+PA05: PA05.o data_generator.o sorter.o Customer.o Servicer.o
+	$(CC) $(STD) $(LFLAGS) PA05.o data_generator.o sorter.o Customer.o Servicer.o $(OFLAGS)
 
 
 # PA05.
@@ -25,11 +25,6 @@ data_generator.o: src/utils/data_generator.h src/utils/data_generator.cpp src/Se
 # Sorter.
 sorter.o: src/utils/sorter.h src/utils/sorter.cpp
 	$(CC) $(STD) $(CFLAGS) src/utils/sorter.cpp
-
-
-# Logger.
-Logger.o: src/Logger/Logger.h src/Logger/Logger.cpp src/ServiceQueueSimulation/ServiceQueueSimulation.h
-	$(CC) $(STD) $(CFLAGS) src/Logger/Logger.cpp
 
 
 # Customer.

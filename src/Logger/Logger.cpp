@@ -109,7 +109,7 @@ void Logger::log_customer_list(std::string header, std::shared_ptr< std::list< C
  *            Smart pointer to simulation
  *
  */
-void Logger::log_sim_results(std::string header,std::shared_ptr< ServiceQueueSimulation > sim_ptr)
+void Logger::log_sim_results(std::string header, std::shared_ptr< ServiceQueueSimulation > sim_ptr)
 {
     // Output.
     file_stream_ << "\n\n"

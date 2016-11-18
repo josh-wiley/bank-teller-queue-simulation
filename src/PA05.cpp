@@ -131,11 +131,18 @@ int main()
   std::cout << "\n\nCreating queues...\n" << std::endl;
 
   // Pointers to lists of pointers to lists of customers.
-  auto sim1_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >();
-  auto sim2_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >();
-  auto sim3_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >();
-  auto sim4_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >();
-
+  auto sim1_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >(
+    new std::list< std::shared_ptr< std::list< Customer > > >()
+  );
+  auto sim2_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >(
+    new std::list< std::shared_ptr< std::list< Customer > > >()
+  );
+  auto sim3_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >(
+    new std::list< std::shared_ptr< std::list< Customer > > >()
+  );
+  auto sim4_customer_events_ptr = std::shared_ptr< std::list< std::shared_ptr< std::list< Customer > > > >(
+    new std::list< std::shared_ptr< std::list< Customer > > >()
+  );
 
   // Populate lists.
   sim1_customer_events_ptr->push_back(data_set1_ptr);
@@ -147,6 +154,10 @@ int main()
   sim3_customer_events_ptr->push_back(data_set3_ptr);
   sim4_customer_events_ptr->push_back(data_set1_ptr);
   sim4_customer_events_ptr->push_back(data_set2_ptr);
+
+
+  // Checkpoint.
+  std::cout << "\n\nCreating simulations...\n" << std::endl;
 
 
   // Simulations.
@@ -176,32 +187,39 @@ int main()
     std::shared_ptr< QueueList< Customer > >()
   );
 
+
+  // Checkpoint.
+  std::cout << "\n\nRunning simulations...\n" << std::endl;
+
+
   // Run simulations.
   sim1.run();
   sim2.run();
   sim3.run();
   sim4.run();
 
+
+  // Checkpoint.
+  std::cout << "\n\nLogging results...\n" << std::endl;
+
+
   // Log statistics.
   stats_logger.log_sim_results(
     "Simulation #1 (link-based queue)",
-    std::make_shared< ServiceQueueSimulation >(sim1)
+    std::shared_ptr< ServiceQueueSimulation >(new ServiceQueueSimulation(sim1))
   );
   stats_logger.log_sim_results(
     "Simulation #2 (array-based and link-based queues)",
-    std::make_shared< ServiceQueueSimulation >(sim2)
+    std::shared_ptr< ServiceQueueSimulation >(new ServiceQueueSimulation(sim2))
   );
   stats_logger.log_sim_results(
     "Simulation #3 (array-based queue)",
-    std::make_shared< ServiceQueueSimulation >(sim3)
+    std::shared_ptr< ServiceQueueSimulation >( new ServiceQueueSimulation(sim3))
   );
   stats_logger.log_sim_results(
     "Simulation #4 (array-based and link-based queues)",
-    std::make_shared< ServiceQueueSimulation >(sim4)
+    std::shared_ptr< ServiceQueueSimulation >(new ServiceQueueSimulation(sim4))
   );
-
-  // Checkpoint.
-  std::cout << "\n\nSuccess! Simulation results have been logged.\n\n" << std::endl;
 
   // Return.
   return 0;

@@ -43,6 +43,7 @@ ServiceQueueSimulation::ServiceQueueSimulation(
     : is_complete_(false), current_sim_time_(0), total_line_length_(0),
       max_line_length_(0), line_updates_(0)
 {
+
     // Import pointers to event sources.
     std::for_each(events_ptrs->begin(), events_ptrs->end(), [&, this] (auto ptr)
     {
