@@ -22,6 +22,7 @@
 #include <list>
 #include <iterator>
 #include <chrono>
+#include <algorithm>
 #include "../Queue/Queue.h"
 #include "../Queue/QueueList.h"
 #include "../Queue/QueueArray.h"
@@ -64,7 +65,7 @@ private:
     std::list< Servicer > servicers_; /**< List of servicers */
     std::list< std::shared_ptr< Queue < Customer > > > customer_queues_; /**< List of customer queues */
     std::list< std::shared_ptr< std::list< Customer > > > arrival_events_; /** List of pointers to lists of customer arrival events */
-    
+
     std::chrono::time_point< std::chrono::high_resolution_clock > start_time_; /**< Start time of simulation */
     std::chrono::time_point< std::chrono::high_resolution_clock > end_time_; /**< End time of simulation */
     unsigned int total_line_length_; /**< Total length of line across all simulation updates (used for calculating line averages) */
@@ -73,7 +74,7 @@ private:
 
     template < class T, class ... V >
     void add_queue(T, V...); /**< Variadic template to add queue and recurse (kinda) */
-    
+
     template < class T >
     void add_queue(T); /**< Variadic template to add queue */
 
