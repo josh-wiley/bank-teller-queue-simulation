@@ -63,19 +63,9 @@ Servicer::~Servicer() {}
  * @param[out] customer_ptr
  *             Allows servicer to update state of customer
  *
- * @return Boolean value indicating whether the servicer is currently
- *         unavailable
- *
  */
-bool Servicer::service_customer(unsigned int current_time, Customer* customer_ptr)
+void Servicer::service_customer(unsigned int current_time, std::shared_ptr< Customer > customer_ptr)
 {
-    // Is unavailale?
-    if (!available(current_time))
-    {
-        // Failure.
-        return false;
-    }
-
     // Complete transaction.
     customer_ptr->complete_transaction(current_time);
 
@@ -84,9 +74,6 @@ bool Servicer::service_customer(unsigned int current_time, Customer* customer_pt
 
     // Update availability.
     unavailable_until_ = current_time + customer_ptr->transaction_length();
-    
-    // Successful.
-    return true;
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -119,6 +106,23 @@ unsigned int Servicer::total_idle_time() const
 {
     // Return total idle time.
     return total_idle_time_;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns number indicating time when the servicer will become
+ *          available
+ *
+ * @return Unsigned integer value representing the time when the servicer will become
+ *         available
+ *
+ */
+unsigned int Servicer::unavailable_until() const
+{
+    // Return time when servicer will become available.
+    return unavailable_until_;
 }
 //
 //  Terminating Precompiler Directives  ////////////////////////////////////////

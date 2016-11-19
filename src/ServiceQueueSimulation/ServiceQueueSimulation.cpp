@@ -260,21 +260,54 @@ std::shared_ptr< std::list< unsigned int > > ServiceQueueSimulation::total_servi
  */
 void ServiceQueueSimulation::run()
 {
-    // Iterators to next arrival event.
-    auto events_cursor_it = customer_events_.begin();
-    auto events_end_it = customer_events_.end();
+    // Event iterators.
+    auto next_arrival_it = customer_events_.begin();
+    auto end_it = customer_events_.end();
+    
+    // Cached results.
+    auto next_arrival_time = next_arrival_it->arrival_time();
+    auto next_customer_departure_time = (unsigned int) 0;
 
-    // Available servicers.
-    auto available_servicers = servicers_;
+    // Pointer to an available servicer.
+    auto servicer_ptr = std::shared_ptr< Servicer >();
+    auto customer_ptr = std::shared_ptr< Customer>();
 
     // Events to process?
-    while (events_cursor_it != events_end_it)
+    while (next_arrival_it != end_it || all_servicers_idle())
     {
-        // Add arrival event to shortest queue.
-        shortest_queue()->enqueue(*events_cursor_it);
+        // Arrival?
+        if (next_arrival_it != end_it && next_customer_departure_time <= next_arrival_time)
+        {
+            // Advance time to next departure.
+            current_sim_time_ = next_arrival_time;
 
-        // Advance.
-        ++events_cursor_it;
+            // Enqueue.
+            shortest_queue()->enqueue(std::make_shared< Customer >(*next_arrival_it));
+
+            // Advance iterator.
+            ++next_arrival_it;
+
+            // Cache new arrival time.
+            next_arrival_time = next_arrival_it->arrival_time();
+        }
+        // Fast-forward to next departure.
+        else
+        {
+            // Advance time to next departure.
+            current_sim_time_ = next_customer_departure_time;
+
+            // Advance next departure time.
+            next_customer_departure_time = next_departure_time();
+        }
+
+        // Are waiting customers and servicers available?
+        while (is_waiting_customers() && is_servicer_available(servicer_ptr)) {
+            // Get next customer from queue.
+            customer_ptr = next_customer_to_be_serviced();
+
+            // Service customer.
+            servicer_ptr->service_customer(current_sim_time_, customer_ptr);
+        }
     }
 }
 //
@@ -287,7 +320,7 @@ void ServiceQueueSimulation::run()
  * @return Smart pointer to shortest queue
  *
  */
-std::shared_ptr< Queue < Customer > > ServiceQueueSimulation::shortest_queue() const
+std::shared_ptr< Queue < std::shared_ptr< Customer > > > ServiceQueueSimulation::shortest_queue() const
 {
     // Pointer to shortest queue, cursor, and end.
     auto shortest_queue_ptr_it = customer_queues_.begin();
@@ -311,6 +344,196 @@ std::shared_ptr< Queue < Customer > > ServiceQueueSimulation::shortest_queue() c
 
     // Return.
     return *shortest_queue_ptr_it;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns a boolean value indicating if all servicers are idle
+ *
+ * @return Boolean value indicating if all servicers are idle
+ *
+ */
+bool ServiceQueueSimulation::all_servicers_idle() const
+{
+    // Servicer iterators.
+    auto cursor_it = servicers_.begin();
+    auto end_it = servicers_.end();
+
+    // Check each servicer.
+    while (cursor_it != end_it)
+    {
+        // Check.
+        if (cursor_it->available(current_sim_time_))
+        {
+            // Return.
+            return false;
+        }
+
+        // Advance.
+        ++cursor_it;
+    }
+
+    // Return.
+    return true;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns a number indicating the time of the next departure event
+ *
+ * @return Unsigned integer indicating the time of the next departure event
+ *
+ */
+unsigned int ServiceQueueSimulation::next_departure_time() const
+{
+    // Servicer iterators.
+    auto s_cursor_it = servicers_.begin();
+    auto s_end_it = servicers_.end();
+
+    // Next departure time.
+    auto departure_times = std::list< unsigned int >();
+
+    // Check each servicer.
+    while (s_cursor_it != s_end_it)
+    {
+        // Check.
+        if (!s_cursor_it->available(current_sim_time_))
+        {
+            // Get departure time.
+            departure_times.push_back(s_cursor_it->unavailable_until());
+        }
+
+        // Advance.
+        ++s_cursor_it;
+    }
+
+    // Are all servicers available?
+    if (departure_times.empty())
+    {
+        // Return 0.
+        return 0;
+    }
+
+    // Get departure time iterators.
+    auto dt_cursor_it = departure_times.begin();
+    auto dt_end_it = departure_times.end();
+
+    // Get first value and advance cursor.
+    auto next_departure_time = *dt_cursor_it;
+    ++dt_cursor_it;
+
+    // Find smallest.
+    while (dt_cursor_it != dt_end_it)
+    {
+        // Check.
+        if (*dt_cursor_it < next_departure_time)
+        {
+            // New next departure time.
+            next_departure_time = *dt_cursor_it;
+        }
+
+        // Advance.
+        ++dt_cursor_it;
+    }
+
+    // Return.
+    return next_departure_time;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns a boolean value indicating if there are any customers
+ *          waiting for service
+ *
+ * @return Boolean value indicating if there are any customers waiting for
+ *         service
+ *
+ */
+bool ServiceQueueSimulation::is_waiting_customers() const
+{
+    // Get queue iterators.
+    auto cursor_it = customer_queues_.begin();
+    auto end_it = customer_queues_.end();
+
+    // Check each.
+    while (cursor_it != end_it)
+    {
+        // Not empty?
+        if (!(*cursor_it)->empty())
+        {
+            // Return.
+            return true;
+        }
+
+        // Advance.
+        ++cursor_it;
+    }
+
+    // Return.
+    return false;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns a boolean value indicating if a servicer is available
+ *
+ * @return Boolean value indicating if a servicer is available
+ *
+ */
+bool ServiceQueueSimulation::is_servicer_available(std::shared_ptr< Servicer >) const
+{
+    // Get servicer iterators.
+    auto cursor_it = servicers_.begin();
+    auto end_it = servicers_.end();
+
+    // Check each.
+    while (cursor_it != end_it)
+    {
+        // Available?
+        if (cursor_it->available(current_sim_time_))
+        {
+            // Return.
+            return true;
+        }
+
+        // Advance.
+        ++cursor_it;
+    }
+
+    // Return.
+    return false;
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns a shared pointer to the next customer that should be
+ *          serviced and removes them from their queue
+ *
+ * @return Pointer to the next customer that should be serviced
+ *
+ */
+std::shared_ptr< Customer > ServiceQueueSimulation::next_customer_to_be_serviced() const
+{
+    // Get queue iterators.
+    auto q_cursor_it = customer_queues_.begin();
+    auto q_end_it = customer_queues_.end();
+
+    // List of customer pointers.
+    auto customer_ptrs = std::list< std::shared_ptr< Customer > >();
+
+    // Get customers at the front of their queues.
+
+    // Get customer
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
