@@ -289,23 +289,28 @@ void ServiceQueueSimulation::run()
  */
 std::shared_ptr< Queue < Customer > > ServiceQueueSimulation::shortest_queue() const
 {
-    // Pointer to shortest queue.
-    auto shortest_queue_ptr = customer_queues_.front();
+    // Pointer to shortest queue, cursor, and end.
+    auto shortest_queue_ptr_it = customer_queues_.begin();
+    auto cursor_it = next(shortest_queue_ptr_it);
+    auto end_it = customer_queues_.end();
 
 
     // Each other queue.
-    std::for_each(next(customer_queues_.begin()), customer_queues_.end(), [shortest_queue_ptr] (auto q_ptr)
+    while(cursor_it != end_it)
     {
         // Shorter than current shortest?
-        if (shortest_queue_ptr->size() > q_ptr->size())
+        if ((*shortest_queue_ptr_it)->size() > (*cursor_it)->size())
         {
             // Assign new shortest queue.
-            shortest_queue_ptr = std::make_shared< Queue < Customer > >(q_ptr);
+            shortest_queue_ptr_it = cursor_it;
         }
-    });
+
+        // Advance.
+        ++cursor_it;
+    }
 
     // Return.
-    return shortest_queue_ptr;
+    return *shortest_queue_ptr_it;
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
