@@ -38,6 +38,7 @@ public:
   bool enqueue(T) override; /**< Places an item at the end of the queue and returns boolean indicating success */
   bool dequeue() override; /**< Removes and returns the item in the front of the queue */
   T peek() const override; /**< Returns the item in the front of the queue without modifying the data */
+  size_t size() const override; /** Returns size of queue */
 
 // Private members.
 private:

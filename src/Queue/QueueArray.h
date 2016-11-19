@@ -39,12 +39,12 @@ public:
   bool enqueue(T) override; /**< Places an item at the end of the queue and returns boolean indicating success */
   bool dequeue() override; /**< Removes and returns the item in the front of the queue */
   T peek() const override; /**< Returns the item in the front of the queue without modifying the data */
+  size_t size() const override; /** Returns size of queue */
 
   QueueArray<T> operator=(const QueueArray<T>&); /**< Overloaded assignment operator. */
 
 // Private members.
 private:
-  size_t size() const; /**< Returns current size of queue */
   size_t max() const; /**< Returns max size of queue */
   
   std::shared_ptr<T> data_set_ptr_; /**< Underlying data container */

@@ -36,7 +36,7 @@
 template< class T, class ... V >
 ServiceQueueSimulation::ServiceQueueSimulation(
     unsigned int num_servicers,
-    std::shared_ptr< std::list< std::shared_ptr< std::list < Customer > > > > events_ptrs,
+    std::shared_ptr< std::list < Customer > > events_ptr,
     T queue_ptr,
     V ... rest_ptrs
 )
@@ -44,12 +44,8 @@ ServiceQueueSimulation::ServiceQueueSimulation(
       total_line_length_(0), line_updates_(0)
 {
 
-    // Import pointers to event sources.
-    std::for_each(events_ptrs->begin(), events_ptrs->end(), [&, this] (auto ptr)
-    {
-        // Import.
-        customer_events_.push_back(ptr);
-    });
+    // Copy events from source.
+    customer_events_ = std::list< Customer >(*events_ptr);
 
     // Create servicers.
     for (auto i = 0; i < num_servicers; i++)
@@ -154,17 +150,13 @@ float ServiceQueueSimulation::average_customer_wait_time() const
     auto total_events_ptr = std::shared_ptr< unsigned int >(0);
 
     // Each events list.
-    std::for_each(customer_events_.begin(), customer_events_.end(), [total_wait_ptr, total_events_ptr] (auto events_list_ptr)
+    std::for_each(customer_events_.begin(), customer_events_.end(), [total_wait_ptr, total_events_ptr] (auto event)
     {
-        // Each event.
-        std::for_each(events_list_ptr->begin(), events_list_ptr->end(), [total_wait_ptr, total_events_ptr] (auto event)
-        {
-            // Wait time.
-            *total_wait_ptr += event.departure_time() - event.transaction_length() - event.arrival_time();
+        // Wait time.
+        *total_wait_ptr += event.departure_time() - event.transaction_length() - event.arrival_time();
 
-            // Total.
-            (*total_events_ptr)++;
-        });
+        // Total.
+        (*total_events_ptr)++;
     });
 
     // Return.
@@ -187,21 +179,17 @@ unsigned int ServiceQueueSimulation::max_customer_wait_time() const
     auto current_wait_ptr = std::shared_ptr< unsigned int >(0);
 
     // Each events list.
-    std::for_each(customer_events_.begin(), customer_events_.end(), [max_wait_ptr, current_wait_ptr] (auto events_list_ptr)
+    std::for_each(customer_events_.begin(), customer_events_.end(), [max_wait_ptr, current_wait_ptr] (auto event)
     {
-        // Each event.
-        std::for_each(events_list_ptr->begin(), events_list_ptr->end(), [max_wait_ptr, current_wait_ptr] (auto event)
-        {
-            // Get wait time.
-            *current_wait_ptr = event.departure_time() - event.transaction_length() - event.arrival_time();
+        // Get wait time.
+        *current_wait_ptr = event.departure_time() - event.transaction_length() - event.arrival_time();
 
-            // Is new max?
-            if (*current_wait_ptr > *max_wait_ptr)
-            {
-                // Assign new max.
-                *max_wait_ptr = *current_wait_ptr;
-            }
-        });
+        // Is new max?
+        if (*current_wait_ptr > *max_wait_ptr)
+        {
+            // Assign new max.
+            *max_wait_ptr = *current_wait_ptr;
+        }
     });
 
     // Return max.
@@ -262,9 +250,63 @@ std::shared_ptr< std::list< unsigned int > > ServiceQueueSimulation::total_servi
     // Return.
     return totals_list_ptr;
 }
-bool ServiceQueueSimulation::waiting_customers() const {}
-void ServiceQueueSimulation::process_next_customer() {}
-void ServiceQueueSimulation::run() {}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Runs the simulation until the end
+ *
+ */
+void ServiceQueueSimulation::run()
+{
+    // Iterators to next arrival event.
+    auto events_cursor_it = customer_events_.begin();
+    auto events_end_it = customer_events_.end();
+
+    // Available servicers.
+    auto available_servicers = servicers_;
+
+    // Events to process?
+    while (events_cursor_it != events_end_it)
+    {
+        // Add arrival event to shortest queue.
+        shortest_queue()->enqueue(*events_cursor_it);
+
+        // Advance.
+        ++events_cursor_it;
+    }
+}
+//
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns pointer to shortest queue
+ *
+ * @return Smart pointer to shortest queue
+ *
+ */
+std::shared_ptr< Queue < Customer > > ServiceQueueSimulation::shortest_queue() const
+{
+    // Pointer to shortest queue.
+    auto shortest_queue_ptr = customer_queues_.front();
+
+
+    // Each other queue.
+    std::for_each(next(customer_queues_.begin()), customer_queues_.end(), [shortest_queue_ptr] (auto q_ptr)
+    {
+        // Shorter than current shortest?
+        if (shortest_queue_ptr->size() > q_ptr->size())
+        {
+            // Assign new shortest queue.
+            shortest_queue_ptr = std::make_shared< Queue < Customer > >(q_ptr);
+        }
+    });
+
+    // Return.
+    return shortest_queue_ptr;
+}
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
 //

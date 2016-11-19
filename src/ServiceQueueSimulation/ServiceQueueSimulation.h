@@ -39,7 +39,7 @@ public:
     template<class T, class ... V>
     ServiceQueueSimulation(
         unsigned int num_servicers,
-        std::shared_ptr< std::list< std::shared_ptr< std::list < Customer > > > >,
+        std::shared_ptr< std::list < Customer > >,
         T, V...
     ); /**< Parameterized constructor */
     ServiceQueueSimulation(const ServiceQueueSimulation&); /**< Copy constructor */
@@ -54,8 +54,6 @@ public:
     unsigned int max_line_length() const; /**< Maximum length of line */
     std::shared_ptr< std::list< unsigned int > > total_servicer_idle_times() const; /**< Total idle times for each servicer */
 
-    bool waiting_customers() const; /**< Returns boolean value indicating if any customers are awaiting service */
-    void process_next_customer(); /**< Processes next customer and updates simulation state */
     void run(); /**< Runs simulation until customer queues are empty */
 
 // Private members.
@@ -64,13 +62,15 @@ private:
     unsigned int current_sim_time_; /**< Amount of time units that have passed in the simulation */
     std::list< Servicer > servicers_; /**< List of servicers */
     std::list< std::shared_ptr< Queue < Customer > > > customer_queues_; /**< List of customer queues */
-    std::list< std::shared_ptr< std::list< Customer > > > customer_events_; /** List of pointers to lists of customer arrival events */
+    std::list< Customer > customer_events_; /** List of pointers to lists of customer arrival events */
 
     std::chrono::time_point< std::chrono::high_resolution_clock > start_time_; /**< Start time of simulation */
     std::chrono::time_point< std::chrono::high_resolution_clock > end_time_; /**< End time of simulation */
     unsigned int max_line_length_; /**< Max line length during simulation */
     unsigned int total_line_length_; /**< Total length of line across all simulation updates (used for calculating line averages) */
     unsigned int line_updates_; /**< How many line updates occurred in simulation (used for calculating line averages) */
+
+    std::shared_ptr< Queue < Customer > > shortest_queue() const; /**< Return pointer to shortest queue */
 
     template < class T, class ... V >
     void add_queue(T, V...); /**< Variadic template to add queue and recurse (kinda) */

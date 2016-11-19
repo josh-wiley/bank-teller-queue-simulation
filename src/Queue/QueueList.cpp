@@ -140,6 +140,22 @@ T QueueList<T>::peek() const
   return data_set_.front();
 }
 //
+//  Class Member Implementation  ///////////////////////////////////////////////
+//
+/**
+ *
+ * @details Returns current size of queue.
+ *
+ * @return Current size of queue.
+ *
+ */
+template<typename T>
+size_t QueueList<T>::size() const
+{
+    // Return size of queue.
+    return data_set_.size();
+}
+//
 //  Terminating Precompiler Directives  ////////////////////////////////////////
 //
 #endif // QUEUE_LIST_CPP_
