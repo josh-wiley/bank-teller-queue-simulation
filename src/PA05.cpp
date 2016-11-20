@@ -132,54 +132,75 @@ int main()
   std::cout << "\n\nCreating simulations...\n" << std::endl;
 
 
-  // Simulations.
+  // Simulation #1.
   auto sim1 = ServiceQueueSimulation(
     NUM_TELLERS_SIM_1,
     data_set1_ptr,
-    std::shared_ptr< QueueArray< Customer > >()
+    std::shared_ptr< QueueArray< std::shared_ptr< Customer > > >(
+      new QueueArray< std::shared_ptr< Customer > >(NUM_EVENTS)
+    )
   );
+  
+  // Simulation #2.
   auto sim2 = ServiceQueueSimulation(
     NUM_TELLERS_SIM_2,
     data_set2_ptr,
-    std::shared_ptr<QueueArray< Customer > >(),
-    std::shared_ptr< QueueList< Customer > >(),
-    std::shared_ptr< QueueArray< Customer > >()
+    std::shared_ptr< QueueArray< std::shared_ptr< Customer > > >(
+      new QueueArray< std::shared_ptr< Customer > >(NUM_EVENTS)
+    ),
+    std::shared_ptr< QueueList< std::shared_ptr< Customer > > >(
+      new QueueList< std::shared_ptr< Customer > >()
+    ),
+    std::shared_ptr< QueueArray< std::shared_ptr< Customer > > >(
+      new QueueArray< std::shared_ptr< Customer > >(NUM_EVENTS)
+    )
   );
+
+  // Simulation #3.
   auto sim3 = ServiceQueueSimulation(
     NUM_TELLERS_SIM_3,
     data_set3_ptr,
-    std::shared_ptr< QueueList< Customer > >(),
-    std::shared_ptr< QueueArray< Customer > >(),
-    std::shared_ptr< QueueList< Customer > >()
+    std::shared_ptr< QueueList< std::shared_ptr< Customer > > >(
+      new QueueList< std::shared_ptr< Customer > >()
+    ),
+    std::shared_ptr< QueueArray< std::shared_ptr< Customer > > >(
+      new QueueArray< std::shared_ptr< Customer > >(NUM_EVENTS)
+    ),
+    std::shared_ptr< QueueList< std::shared_ptr< Customer > > >(
+      new QueueList< std::shared_ptr< Customer > >()
+    )
   );
+
+  // Simulation #4.
   auto sim4 = ServiceQueueSimulation(
     NUM_TELLERS_SIM_4,
     data_set1_ptr,
-    std::shared_ptr< QueueArray< Customer > >(),
-    std::shared_ptr< QueueList< Customer > >()
+    std::shared_ptr< QueueArray< std::shared_ptr< Customer > > >(
+      new QueueArray< std::shared_ptr< Customer > >(NUM_EVENTS)
+    ),
+    std::shared_ptr< QueueList< std::shared_ptr< Customer > > >(
+      new QueueList< std::shared_ptr< Customer > >()
+    )
   );
-
 
   // Checkpoint.
   std::cout << "\n\nRunning simulations...\n" << std::endl;
 
-
   // Run simulations.
   sim1.run();
-  sim2.run();
-  sim3.run();
-  sim4.run();
-
+  //sim2.run();
+  //sim3.run();
+  //sim4.run();
 
   // Checkpoint.
   std::cout << "\n\nLogging results...\n" << std::endl;
-
 
   // Log statistics.
   stats_logger.log_sim_results(
     "Simulation #1 (link-based queue)",
     std::shared_ptr< ServiceQueueSimulation >(new ServiceQueueSimulation(sim1))
   );
+  /*
   stats_logger.log_sim_results(
     "Simulation #2 (array-based and link-based queues)",
     std::shared_ptr< ServiceQueueSimulation >(new ServiceQueueSimulation(sim2))
@@ -192,6 +213,7 @@ int main()
     "Simulation #4 (array-based and link-based queues)",
     std::shared_ptr< ServiceQueueSimulation >(new ServiceQueueSimulation(sim4))
   );
+  */
 
   // Return.
   return 0;

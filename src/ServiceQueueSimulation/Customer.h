@@ -27,7 +27,7 @@ public:
     Customer(const Customer&); /**< Copy constructor */
     ~Customer(); /**< Destructor */
 
-    bool is_waiting_for_service() const; /**<  */
+    bool is_waiting_for_service() const; /**< Returns boolean value indicating if the customer is waiting for service */
     unsigned int arrival_time() const; /**< Return the time of arrival */
     unsigned int transaction_length() const; /**< Return the length of the transaction */
     unsigned int departure_time() const; /**< Return the time of departure */

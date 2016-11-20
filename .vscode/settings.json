@@ -1,6 +1,6 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    // Font size: 12 -> 18
-    "editor.fontSize": 16,
-    "editor.rulers": [ 80 ]
+    "editor.fontSize": 16, // Font size: 12 -> 18
+    "editor.rulers": [ 80 ], // Ruler
+    "editor.wrappingColumn": -1 // No wrap
 }

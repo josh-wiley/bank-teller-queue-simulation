@@ -40,23 +40,29 @@ QueueArray<T>::QueueArray(size_t max_size, std::shared_ptr< std::list<T> > data_
     data_set_ptr_.reset(new T[max_], [] (auto ptr) { delete[] ptr; });
     
     // Is pointer valid?
-    if (data_ptr.get() != nullptr)
+    if (data_ptr == nullptr)
     {
-        // Size.
-        end_ = data_ptr->size();
+        // Set end value.
+        end_ = 1;
 
-        // Cursor.
-        auto cursor = data_ptr->begin();
+        // Return.
+        return;
+    }
 
-        // Copy data set.
-        for (auto i = 0; cursor != data_ptr->end(); i++)
-        {
-            // Copy.
-            data_set_ptr_.get()[i] = *cursor;
+    // Size.
+    end_ = data_ptr->size();
 
-            // Advance.
-            ++cursor;
-        }
+    // Cursor.
+    auto cursor = data_ptr->begin();
+
+    // Copy data set.
+    for (auto i = 0; cursor != data_ptr->end(); i++)
+    {
+        // Copy.
+        data_set_ptr_.get()[i] = *cursor;
+
+        // Advance.
+        ++cursor;
     }
 }
 //
@@ -112,7 +118,7 @@ template<typename T>
 bool QueueArray<T>::empty() const
 {
   // Return empty status.
-  return begin_ == end_;
+  return (begin_ + 1) == end_;
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -132,17 +138,25 @@ template<typename T>
 bool QueueArray<T>::enqueue(T input)
 {
   // Available space?
-  if (max_ - size() > 0)
+  if (max_ - size() == 0)
   {
-      // Failure.
-      return false;
+    // TODO: REMOVE
+    std::cout << "\n\nEnqueue unsuccessful.\n"
+              << "Queue size: \n" << size() << std::endl;
+
+    // Failure.
+    return false;
   }
 
   // Place value.
-  data_set_ptr_.get()[end_ - 1] = input;
+  data_set_ptr_.get()[(end_ % max_) - 1] = input;
 
   // Increment end.
   end_++;
+
+  // TODO: REMOVE
+  std::cout << "\n\nEnqueue successful.\n"
+            << "Queue size: \n" << size() << std::endl;
 
   // Success.
   return true;
@@ -163,12 +177,20 @@ bool QueueArray<T>::dequeue()
   // Empty?
   if (empty())
   {
+    // TODO: REMOVE
+    std::cout << "\n\nDequeue unsuccessful.\n"
+              << "Queue size: \n" << size() << std::endl;
+
     // Return failure.
     return false;
   }
 
   // Increment front.
   begin_++;
+
+  // TODO: REMOVE
+  std::cout << "\n\nDequeue successful.\n"
+            << "Queue size: \n" << size() << std::endl;
 
   // Return success.
   return true;
@@ -203,7 +225,7 @@ template<typename T>
 size_t QueueArray<T>::size() const
 {
     // Return size of queue.
-    return end_ - 1 - begin_;
+    return end_ - begin_ - 1;
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////

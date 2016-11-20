@@ -43,15 +43,34 @@ ServiceQueueSimulation::ServiceQueueSimulation(
     : is_complete_(false), current_sim_time_(0), max_line_length_(0),
       total_line_length_(0), line_updates_(0)
 {
+    // Events source iterators.
+    auto events_cursor_it = events_ptr->begin();
+    auto events_end_it = events_ptr->end();
 
-    // Copy events from source.
-    customer_events_ = std::list< Customer >(*events_ptr);
+    // Construct events list from source.
+    while (events_cursor_it != events_end_it)
+    {
+        // Copy customer event.
+        customer_events_.push_back(
+            std::shared_ptr< Customer >(
+                new Customer(
+                    events_cursor_it->arrival_time(),
+                    events_cursor_it->transaction_length()
+                )
+            )
+        );
+
+        // Advance.
+        ++events_cursor_it;
+    }
 
     // Create servicers.
     for (auto i = 0; i < num_servicers; i++)
     {
         // Push new servicer to list.
-        servicers_.push_back(Servicer());
+        servicers_.push_back(
+            std::shared_ptr< Servicer >( new Servicer() )
+        );
     }
     
     // Add queues.
@@ -153,7 +172,7 @@ float ServiceQueueSimulation::average_customer_wait_time() const
     std::for_each(customer_events_.begin(), customer_events_.end(), [total_wait_ptr, total_events_ptr] (auto event)
     {
         // Wait time.
-        *total_wait_ptr += event.departure_time() - event.transaction_length() - event.arrival_time();
+        *total_wait_ptr += event->departure_time() - event->transaction_length() - event->arrival_time();
 
         // Total.
         (*total_events_ptr)++;
@@ -182,7 +201,7 @@ unsigned int ServiceQueueSimulation::max_customer_wait_time() const
     std::for_each(customer_events_.begin(), customer_events_.end(), [max_wait_ptr, current_wait_ptr] (auto event)
     {
         // Get wait time.
-        *current_wait_ptr = event.departure_time() - event.transaction_length() - event.arrival_time();
+        *current_wait_ptr = event->departure_time() - event->transaction_length() - event->arrival_time();
 
         // Is new max?
         if (*current_wait_ptr > *max_wait_ptr)
@@ -237,14 +256,16 @@ unsigned int ServiceQueueSimulation::max_line_length() const
  */
 std::shared_ptr< std::list< unsigned int > > ServiceQueueSimulation::total_servicer_idle_times() const
 {
-    // Save list.
-    auto totals_list_ptr = std::shared_ptr< std::list< unsigned int > >( new std::list< unsigned int >());
+    // Pointer to list of idle times.
+    auto totals_list_ptr = std::shared_ptr< std::list< unsigned int > >(
+        new std::list< unsigned int >()
+    );
 
     // Add totals.
-    std::for_each(servicers_.begin(), servicers_.end(), [totals_list_ptr] (auto servicer)
+    std::for_each(servicers_.begin(), servicers_.end(), [totals_list_ptr] (auto servicer_ptr)
     {
         // Add idle time.
-        totals_list_ptr->push_back(servicer.total_idle_time());
+        totals_list_ptr->push_back(servicer_ptr->total_idle_time());
     });
 
     // Return.
@@ -265,45 +286,71 @@ void ServiceQueueSimulation::run()
     auto end_it = customer_events_.end();
     
     // Cached results.
-    auto next_arrival_time = next_arrival_it->arrival_time();
-    auto next_customer_departure_time = (unsigned int) 0;
+    auto next_arrival_time = (*next_arrival_it)->arrival_time();
+    auto next_departure_time = (unsigned int) 0;
 
-    // Pointer to an available servicer.
+    // Pointer to servicer and customer to process a transaction.
     auto servicer_ptr = std::shared_ptr< Servicer >();
     auto customer_ptr = std::shared_ptr< Customer>();
 
-    // Events to process?
-    while (next_arrival_it != end_it || all_servicers_idle())
+    // Pending arrival or departure events?
+    while (next_arrival_it != end_it || !all_servicers_idle())
     {
-        // Arrival?
-        if (next_arrival_it != end_it && next_customer_departure_time <= next_arrival_time)
+        // TODO: REMOVE
+        std::cout << "\n\nProcessing next event...\n" << std::endl;
+
+        // Is next event an arrival?
+        if (
+            // If there is an arrival event to process.
+            next_arrival_it != end_it &&
+            (
+                // If there is no departure event.
+                next_departure_time == 0 ||
+                
+                // Or if the next departure event is after the next arrival event.
+                next_departure_time > next_arrival_time
+            )
+        )
         {
-            // Advance time to next departure.
+            // TODO: REMOVE
+            std::cout << "\n\nProcessing arrival event...\n" << std::endl;
+
+            // Advance time to next arrival.
             current_sim_time_ = next_arrival_time;
 
             // Enqueue.
-            shortest_queue()->enqueue(std::make_shared< Customer >(*next_arrival_it));
+            shortest_queue()->enqueue(*next_arrival_it);
+
+            // TODO: REMOVE
+            std::cout << "\n\nCustomer entered shortest queue...\n" << std::endl;
 
             // Advance iterator.
             ++next_arrival_it;
 
             // Cache new arrival time.
-            next_arrival_time = next_arrival_it->arrival_time();
+            next_arrival_time = (*next_arrival_it)->arrival_time();
         }
         // Fast-forward to next departure.
         else
         {
-            // Advance time to next departure.
-            current_sim_time_ = next_customer_departure_time;
+            // TODO: REMOVE
+            std::cout << "\n\nProcessing departure event...\n" << std::endl;
 
-            // Advance next departure time.
-            next_customer_departure_time = next_departure_time();
+            // Advance time to next departure time.
+            current_sim_time_ = next_departure_time;
+
+            // Cache next departure time.
+            next_departure_time = get_next_departure_time();
         }
 
+        // TODO: REMOVE
+        std::cout << "\n\nEvent processed...\n" << std::endl;
+
         // Are waiting customers and servicers available?
-        while (is_waiting_customers() && is_servicer_available(servicer_ptr)) {
-            // Get next customer from queue.
-            customer_ptr = next_customer_to_be_serviced();
+        while (is_waiting_customers(customer_ptr) && is_servicer_available(servicer_ptr))
+        {
+            // TODO: REMOVE
+            std::cout << "\n\nServicing customer...\n" << std::endl;
 
             // Service customer.
             servicer_ptr->service_customer(current_sim_time_, customer_ptr);
@@ -328,13 +375,13 @@ std::shared_ptr< Queue < std::shared_ptr< Customer > > > ServiceQueueSimulation:
     auto end_it = customer_queues_.end();
 
 
-    // Each other queue.
+    // Find smallest queue.
     while(cursor_it != end_it)
     {
         // Shorter than current shortest?
         if ((*shortest_queue_ptr_it)->size() > (*cursor_it)->size())
         {
-            // Assign new shortest queue.
+            // Update new shortest queue.
             shortest_queue_ptr_it = cursor_it;
         }
 
@@ -365,8 +412,11 @@ bool ServiceQueueSimulation::all_servicers_idle() const
     while (cursor_it != end_it)
     {
         // Check.
-        if (cursor_it->available(current_sim_time_))
+        if ((*cursor_it)->available(current_sim_time_))
         {
+            // TODO: REMOVE
+            std::cout << "\n\nSome servicers are still working...\n" << std::endl;
+
             // Return.
             return false;
         }
@@ -374,6 +424,9 @@ bool ServiceQueueSimulation::all_servicers_idle() const
         // Advance.
         ++cursor_it;
     }
+
+    // TODO: REMOVE
+    std::cout << "\n\nAll servicers are idlef...\n" << std::endl;
 
     // Return.
     return true;
@@ -388,7 +441,7 @@ bool ServiceQueueSimulation::all_servicers_idle() const
  * @return Unsigned integer indicating the time of the next departure event
  *
  */
-unsigned int ServiceQueueSimulation::next_departure_time() const
+unsigned int ServiceQueueSimulation::get_next_departure_time() const
 {
     // Servicer iterators.
     auto s_cursor_it = servicers_.begin();
@@ -401,10 +454,10 @@ unsigned int ServiceQueueSimulation::next_departure_time() const
     while (s_cursor_it != s_end_it)
     {
         // Check.
-        if (!s_cursor_it->available(current_sim_time_))
+        if (!(*s_cursor_it)->available(current_sim_time_))
         {
             // Get departure time.
-            departure_times.push_back(s_cursor_it->unavailable_until());
+            departure_times.push_back((*s_cursor_it)->unavailable_until());
         }
 
         // Advance.
@@ -414,6 +467,9 @@ unsigned int ServiceQueueSimulation::next_departure_time() const
     // Are all servicers available?
     if (departure_times.empty())
     {
+        // TODO: REMOVE
+        std::cout << "\n\nNo pending transactions...\n" << std::endl;
+
         // Return 0.
         return 0;
     }
@@ -440,6 +496,9 @@ unsigned int ServiceQueueSimulation::next_departure_time() const
         ++dt_cursor_it;
     }
 
+    // TODO: REMOVE
+    std::cout << "\n\nNext departure time: " << next_departure_time << "\n" << std::endl;
+
     // Return.
     return next_departure_time;
 }
@@ -455,28 +514,84 @@ unsigned int ServiceQueueSimulation::next_departure_time() const
  *         service
  *
  */
-bool ServiceQueueSimulation::is_waiting_customers() const
+bool ServiceQueueSimulation::is_waiting_customers(std::shared_ptr< Customer >& next_customer_ptr) const
 {
+    // TODO: REMOVE
+    std::cout << "\n\nChecking queues for waiting customers...\n" << std::endl;
+
     // Get queue iterators.
-    auto cursor_it = customer_queues_.begin();
-    auto end_it = customer_queues_.end();
+    auto cq_cursor_it = customer_queues_.begin();
+    auto cq_end_it = customer_queues_.end();
+
+    // List of queue pointers.
+    auto loaded_queues = std::list< std::shared_ptr< Queue < std::shared_ptr< Customer > > > >();
 
     // Check each.
-    while (cursor_it != end_it)
+    while (cq_cursor_it != cq_end_it)
     {
         // Not empty?
-        if (!(*cursor_it)->empty())
+        if (!(*cq_cursor_it)->empty())
         {
-            // Return.
-            return true;
+            // Add to list.
+            loaded_queues.push_back(*cq_cursor_it);
         }
 
         // Advance.
-        ++cursor_it;
+        ++cq_cursor_it;
     }
 
+    // If no queues with customers, return.
+    if (loaded_queues.empty()) {
+        // TODO: REMOVE
+        std::cout << "\n\nNo customers in a queue...\n" << std::endl;
+
+        // Return.
+        return false;
+    }
+
+    // TODO: REMOVE
+    std::cout << "\n\nCustomers waiting. Finding next to service...\n" << std::endl;
+
+    // Get loaded queue iterators.
+    auto lq_cursor_it = loaded_queues.begin();
+    auto l_end_it = loaded_queues.end();
+
+    // Queue to dequeue from.
+    auto queue_to_dequeue_from_ptr = std::shared_ptr< Queue < std::shared_ptr< Customer > > >
+        (*lq_cursor_it);
+
+    // Get first customer arrival time.
+    auto earliest_arrival_time = queue_to_dequeue_from_ptr->peek()->arrival_time();
+
+    // Advance.
+    ++lq_cursor_it;
+
+    // Get queue to dequeue from.
+    while (lq_cursor_it != l_end_it)
+    {
+        // Is earlier arrival time.
+        if ((*lq_cursor_it)->peek()->arrival_time() < earliest_arrival_time)
+        {
+            // Save queue pointer.
+            queue_to_dequeue_from_ptr = std::shared_ptr< Queue < std::shared_ptr< Customer > > >
+                (*lq_cursor_it);
+
+            // Save new arrival time.
+            earliest_arrival_time = queue_to_dequeue_from_ptr->peek()->arrival_time();
+        }
+
+        // Advance.
+        ++lq_cursor_it;
+    }
+
+    // Save.
+    next_customer_ptr = queue_to_dequeue_from_ptr->peek();
+
+    // Dequeue.
+    queue_to_dequeue_from_ptr->dequeue();
+
     // Return.
-    return false;
+    return true;
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -488,8 +603,11 @@ bool ServiceQueueSimulation::is_waiting_customers() const
  * @return Boolean value indicating if a servicer is available
  *
  */
-bool ServiceQueueSimulation::is_servicer_available(std::shared_ptr< Servicer >) const
+bool ServiceQueueSimulation::is_servicer_available(std::shared_ptr< Servicer >& available_servicer) const
 {
+    // TODO: REMOVE
+    std::cout << "\n\nChecking if a servicer is available...\n" << std::endl;
+
     // Get servicer iterators.
     auto cursor_it = servicers_.begin();
     auto end_it = servicers_.end();
@@ -498,8 +616,14 @@ bool ServiceQueueSimulation::is_servicer_available(std::shared_ptr< Servicer >) 
     while (cursor_it != end_it)
     {
         // Available?
-        if (cursor_it->available(current_sim_time_))
+        if ((*cursor_it)->available(current_sim_time_))
         {
+            // TODO: REMOVE
+            std::cout << "\n\nA servicer is available...\n" << std::endl;
+
+            // Save out parameter.
+            available_servicer = *cursor_it;
+
             // Return.
             return true;
         }
@@ -508,32 +632,11 @@ bool ServiceQueueSimulation::is_servicer_available(std::shared_ptr< Servicer >) 
         ++cursor_it;
     }
 
+    // TODO: REMOVE
+    std::cout << "\n\nNo servicers are available...\n" << std::endl;
+
     // Return.
     return false;
-}
-//
-//  Class Member Implementation  ///////////////////////////////////////////////
-//
-/**
- *
- * @details Returns a shared pointer to the next customer that should be
- *          serviced and removes them from their queue
- *
- * @return Pointer to the next customer that should be serviced
- *
- */
-std::shared_ptr< Customer > ServiceQueueSimulation::next_customer_to_be_serviced() const
-{
-    // Get queue iterators.
-    auto q_cursor_it = customer_queues_.begin();
-    auto q_end_it = customer_queues_.end();
-
-    // List of customer pointers.
-    auto customer_ptrs = std::list< std::shared_ptr< Customer > >();
-
-    // Get customers at the front of their queues.
-
-    // Get customer
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////

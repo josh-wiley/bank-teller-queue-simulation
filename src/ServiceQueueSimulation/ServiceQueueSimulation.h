@@ -28,6 +28,7 @@
 #include "../Queue/QueueArray.h"
 #include "Servicer.h"
 #include "Customer.h"
+#include <iostream> // TODO: REMOVE
 //
 //  Class Definition  //////////////////////////////////////////////////////////
 //
@@ -60,9 +61,9 @@ public:
 private:
     bool is_complete_; /**< Is the simulation complete? */
     unsigned int current_sim_time_; /**< Amount of time units that have passed in the simulation */
-    std::list< Servicer > servicers_; /**< List of servicers */
+    std::list< std::shared_ptr< Servicer > > servicers_; /**< List of servicers */
     std::list< std::shared_ptr< Queue < std::shared_ptr< Customer > > > > customer_queues_; /**< List of customer queues */
-    std::list< Customer > customer_events_; /** List of pointers to lists of customer arrival events */
+    std::list< std::shared_ptr< Customer > > customer_events_; /** List of pointers to lists of customer arrival events */
 
     std::chrono::time_point< std::chrono::high_resolution_clock > start_time_; /**< Start time of simulation */
     std::chrono::time_point< std::chrono::high_resolution_clock > end_time_; /**< End time of simulation */
@@ -72,10 +73,9 @@ private:
 
     std::shared_ptr< Queue < std::shared_ptr< Customer > > > shortest_queue() const; /**< Return pointer to shortest queue */
     bool all_servicers_idle() const; /**< Return boolean value indicating if all servicers are idle. */
-    unsigned int next_departure_time() const; /**< Returns next customer departure time */
-    bool is_waiting_customers() const; /**< Returns boolean value indicating if customers are waiting in the queue */
-    bool is_servicer_available(std::shared_ptr< Servicer >) const; /**< Returns boolean value indicating if servicers are available, and returns the first availabel servicer via out parameter */
-    std::shared_ptr< Customer > next_customer_to_be_serviced() const; /**< Returns smart pointer to next customer to be serviced */
+    unsigned int get_next_departure_time() const; /**< Returns next customer departure time */
+    bool is_waiting_customers(std::shared_ptr< Customer >&) const; /**< Returns boolean value indicating if customers are waiting in the queue, and returns a pointer to the customer who has been waiting the longest */
+    bool is_servicer_available(std::shared_ptr< Servicer >&) const; /**< Returns boolean value indicating if servicers are available, and returns a pointer the first available servicer via out parameter */
 
     template < class T, class ... V >
     void add_queue(T, V...); /**< Variadic template to add queue and recurse (kinda) */
