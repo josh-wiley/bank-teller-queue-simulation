@@ -148,7 +148,7 @@ void Logger::log_sim_results(std::string header, std::shared_ptr< ServiceQueueSi
     for (auto i = 0; cursor_it != end_it; i++)
     {
         // Log.
-        file_stream_ << "Servicer " << i + 1 << " Idle Time: " << *cursor_it << '\n';
+        file_stream_ << "Servicer #" << i + 1 << " Idle Time: " << *cursor_it << '\n';
 
         // Advance.
         ++cursor_it;

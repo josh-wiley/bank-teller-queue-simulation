@@ -40,7 +40,7 @@ ServiceQueueSimulation::ServiceQueueSimulation(
     T queue_ptr,
     V ... rest_ptrs
 )
-    : is_complete_(false), current_sim_time_(0), max_line_length_(0),
+    : current_sim_time_(0), max_line_length_(0),
       total_line_length_(0), line_updates_(0)
 {
     // Events source iterators.
@@ -89,11 +89,11 @@ ServiceQueueSimulation::ServiceQueueSimulation(
  *
  */
 ServiceQueueSimulation::ServiceQueueSimulation(const ServiceQueueSimulation& origin)
-    : is_complete_(origin.is_complete_), current_sim_time_(origin.current_sim_time_),
-      servicers_(origin.servicers_), customer_queues_(origin.customer_queues_),
-      customer_events_(origin.customer_events_), start_time_(origin.start_time_),
-      end_time_(origin.end_time_), max_line_length_(origin.max_line_length_),
-      total_line_length_(origin.total_line_length_), line_updates_(origin.line_updates_) {}
+    : current_sim_time_(origin.current_sim_time_), servicers_(origin.servicers_),
+      customer_queues_(origin.customer_queues_), customer_events_(origin.customer_events_),
+      start_time_(origin.start_time_), end_time_(origin.end_time_),
+      max_line_length_(origin.max_line_length_), total_line_length_(origin.total_line_length_),
+      line_updates_(origin.line_updates_) {}
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
 //
@@ -108,33 +108,18 @@ ServiceQueueSimulation::~ServiceQueueSimulation() {}
 //
 /**
  *
- * @details Returns a boolean value indicating whether or not the simulation has
- *          finished running
+ * @details Returns number of milliseconds the simulation took to complete
  *
- * @return Boolean value indicating whether or not the simulation has finished
- *         running
- *
- */
-bool ServiceQueueSimulation::is_complete() const
-{
-    // Return completion status.
-    return is_complete_;
-}
-//
-//  Class Member Implementation  ///////////////////////////////////////////////
-//
-/**
- *
- * @details Returns current amount of time since simulation has started running,
- *          or if complete, the total time of the run
- *
- * @return Milliseconds since start of run
+ * @return Number of milliseconds that the simulation took to complete
  *
  */
 unsigned int ServiceQueueSimulation::time_elapsed() const
 {
-    // Return time elapsed.
-    return start_time_.time_since_epoch().count() - end_time_.time_since_epoch().count();
+    // Return milliseconds elapsed.
+    return std::chrono::duration_cast
+        < std::chrono::milliseconds >
+            (end_time_ - start_time_)
+                .count();
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -144,7 +129,7 @@ unsigned int ServiceQueueSimulation::time_elapsed() const
  * @details Returns current amount of simulation (virtual) time has passed in
  *          current simulation
  *
- * @return Elapsed imulation time
+ * @return Elapsed simulation time
  *
  */
 unsigned int ServiceQueueSimulation::sim_time() const
@@ -195,7 +180,7 @@ float ServiceQueueSimulation::average_customer_wait_time() const
  *
  * @details Computes and returns max customer wait time
  *
- * @return Max wait time per customer
+ * @return Max wait time for all customers
  *
  */
 unsigned int ServiceQueueSimulation::max_customer_wait_time() const
@@ -240,8 +225,45 @@ unsigned int ServiceQueueSimulation::max_customer_wait_time() const
  */
 float ServiceQueueSimulation::average_line_length() const
 {
-    // Return average.
-    return 0;//line_updates_ / total_line_length_;
+    // Line update iterators.
+    auto ll_cursor_it = line_lengths_.begin();
+    auto ll_end_it = line_lengths_.end();
+
+    // Sum.
+    auto sum = (unsigned int) 0;
+
+    // Average line lengths.
+    auto line_length_averages = std::list< float >();
+
+    while (ll_cursor_it != ll_end_it)
+    {
+        // Iterators.
+
+        // Find average.
+
+        // Clear sum.
+        sum = 0;
+
+        // Advance.
+        ++ll_cursor_it;
+    }
+
+    // Line averages iterators.
+    auto la_cursor_it = line_length_averages.begin();
+    auto la_end_it = line_length_averages.end();
+
+    // Find sum of the averages.
+    while (la_cursor_it != la_end_it)
+    {
+        // Add to sum.
+        sum += *la_cursor_it;
+        
+        // Advance.
+        ++la_cursor_it;
+    }
+
+    // Return average of averages.
+    return sum / line_length_averages.size();
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -255,8 +277,26 @@ float ServiceQueueSimulation::average_line_length() const
  */
 unsigned int ServiceQueueSimulation::max_line_length() const
 {
-    // Return max.
-    return max_line_length_;
+    // Line update iterators.
+    auto ll_cursor_it = line_lengths_.begin();
+    auto ll_end_it = line_lengths_.end();
+
+    // Max line length.
+    auto max_line_length = (unsigned int) 0;
+
+    // Find max line length of all of the queues.
+    while (ll_cursor_it != ll_end_it)
+    {
+        // Iterators.
+
+        // Find max.
+
+        // Advance.
+        ++ll_cursor_it;
+    }
+
+    // Return.
+    return max_line_length;
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////

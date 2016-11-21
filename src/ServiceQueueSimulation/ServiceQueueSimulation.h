@@ -46,7 +46,6 @@ public:
     ServiceQueueSimulation(const ServiceQueueSimulation&); /**< Copy constructor */
     ~ServiceQueueSimulation(); /**< Destructor */
 
-    bool is_complete() const; /**< Is the simulation complete? */
     unsigned int time_elapsed() const; /**< Amount of time (ms) that the simulation took to finish, or has been running for */
     unsigned int sim_time() const; /**< Total time units passed in simulation */
     float average_customer_wait_time() const; /**< Average customer wait time */
@@ -59,7 +58,6 @@ public:
 
 // Private members.
 private:
-    bool is_complete_; /**< Is the simulation complete? */
     unsigned int current_sim_time_; /**< Amount of time units that have passed in the simulation */
     std::list< std::shared_ptr< Servicer > > servicers_; /**< List of servicers */
     std::list< std::shared_ptr< Queue < std::shared_ptr< Customer > > > > customer_queues_; /**< List of customer queues */
@@ -67,9 +65,7 @@ private:
 
     std::chrono::time_point< std::chrono::high_resolution_clock > start_time_; /**< Start time of simulation */
     std::chrono::time_point< std::chrono::high_resolution_clock > end_time_; /**< End time of simulation */
-    unsigned int max_line_length_; /**< Max line length during simulation */
-    unsigned int total_line_length_; /**< Total length of line across all simulation updates (used for calculating line averages) */
-    unsigned int line_updates_; /**< How many line updates occurred in simulation (used for calculating line averages) */
+    std::list< std::list< unsigned int > > line_lengths_; /**< List of line lengths, for each queue, after each event. */
 
     std::shared_ptr< Queue < std::shared_ptr< Customer > > > shortest_queue() const; /**< Return pointer to shortest queue */
     bool all_servicers_idle() const; /**< Return boolean value indicating if all servicers are idle. */
