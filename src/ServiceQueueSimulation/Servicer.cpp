@@ -74,9 +74,6 @@ void Servicer::service_customer(unsigned int current_time, std::shared_ptr< Cust
 
     // Update availability.
     unavailable_until_ = current_time + customer_ptr->transaction_length();
-
-    // TODO: REMOVE
-    std::cout << "\n\nDone servicing...\n" << std::endl;
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////

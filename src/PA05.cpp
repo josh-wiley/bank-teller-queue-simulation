@@ -186,11 +186,29 @@ int main()
   // Checkpoint.
   std::cout << "\n\nRunning simulations...\n" << std::endl;
 
-  // Run simulations.
+  // Simulation #1.
   sim1.run();
-  //sim2.run();
-  //sim3.run();
-  //sim4.run();
+
+  // Checkpoint.
+  std::cout << "\n\nFinished simulation #1...\n" << std::endl;
+
+  // Simulation #2.
+  sim2.run();
+
+  // Checkpoint.
+  std::cout << "\n\nFinished simulation #2...\n" << std::endl;
+
+  // Simulation #3.
+  sim3.run();
+
+  // Checkpoint.
+  std::cout << "\n\nFinished simulation #3...\n" << std::endl;
+
+  // Simulation #4.
+  sim4.run();
+
+  // Checkpoint.
+  std::cout << "\n\nFinished simulation #4...\n" << std::endl;
 
   // Checkpoint.
   std::cout << "\n\nLogging results...\n" << std::endl;
@@ -200,7 +218,6 @@ int main()
     "Simulation #1 (link-based queue)",
     std::shared_ptr< ServiceQueueSimulation >(new ServiceQueueSimulation(sim1))
   );
-  /*
   stats_logger.log_sim_results(
     "Simulation #2 (array-based and link-based queues)",
     std::shared_ptr< ServiceQueueSimulation >(new ServiceQueueSimulation(sim2))
@@ -213,7 +230,6 @@ int main()
     "Simulation #4 (array-based and link-based queues)",
     std::shared_ptr< ServiceQueueSimulation >(new ServiceQueueSimulation(sim4))
   );
-  */
 
   // Return.
   return 0;

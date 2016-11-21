@@ -43,7 +43,7 @@ QueueArray<T>::QueueArray(size_t max_size, std::shared_ptr< std::list<T> > data_
     if (data_ptr == nullptr)
     {
         // Set end value.
-        end_ = 1;
+        end_ = 0;
 
         // Return.
         return;
@@ -118,7 +118,7 @@ template<typename T>
 bool QueueArray<T>::empty() const
 {
   // Return empty status.
-  return (begin_ + 1) == end_;
+  return begin_ == end_;
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -138,25 +138,17 @@ template<typename T>
 bool QueueArray<T>::enqueue(T input)
 {
   // Available space?
-  if (max_ - size() == 0)
+  if (size() == max_)
   {
-    // TODO: REMOVE
-    std::cout << "\n\nEnqueue unsuccessful.\n"
-              << "Queue size: \n" << size() << std::endl;
-
     // Failure.
     return false;
   }
 
   // Place value.
-  data_set_ptr_.get()[(end_ % max_) - 1] = input;
+  data_set_ptr_.get()[end_ % max_] = input;
 
   // Increment end.
   end_++;
-
-  // TODO: REMOVE
-  std::cout << "\n\nEnqueue successful.\n"
-            << "Queue size: \n" << size() << std::endl;
 
   // Success.
   return true;
@@ -177,20 +169,12 @@ bool QueueArray<T>::dequeue()
   // Empty?
   if (empty())
   {
-    // TODO: REMOVE
-    std::cout << "\n\nDequeue unsuccessful.\n"
-              << "Queue size: \n" << size() << std::endl;
-
     // Return failure.
     return false;
   }
 
   // Increment front.
   begin_++;
-
-  // TODO: REMOVE
-  std::cout << "\n\nDequeue successful.\n"
-            << "Queue size: \n" << size() << std::endl;
 
   // Return success.
   return true;
@@ -209,7 +193,7 @@ template<typename T>
 T QueueArray<T>::peek() const
 {
   // Return front item.
-  return data_set_ptr_.get()[begin_];
+  return data_set_ptr_.get()[begin_ % max_];
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -225,7 +209,7 @@ template<typename T>
 size_t QueueArray<T>::size() const
 {
     // Return size of queue.
-    return end_ - begin_ - 1;
+    return end_ - begin_;
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -256,8 +240,12 @@ size_t QueueArray<T>::max() const
 template<typename T>
 QueueArray<T> QueueArray<T>::operator=(const QueueArray<T>& rhs)
 {
-    // Reallocate.
-    *data_set_ptr_.reset(new T[rhs.max_], [] (auto ptr) { delete[] ptr; });
+    // Should reallocate?
+    if (max_ != rhs.max_)
+    {
+        // Reallocate.
+        *data_set_ptr_.reset(new T[rhs.max_], [] (auto ptr) { delete[] ptr; });
+    }
 
     // Is pointer valid?
     if (rhs.data_set_ptr_ != nullptr)
@@ -266,7 +254,7 @@ QueueArray<T> QueueArray<T>::operator=(const QueueArray<T>& rhs)
         for (auto i = rhs.begin_; i < rhs.end_; i++)
         {
             // Copy item.
-            data_set_ptr_.get()[i % max_] = rhs.data_set_ptr_.get()[i];
+            data_set_ptr_.get()[i % max_] = rhs.data_set_ptr_.get()[i % max_];
         }
     }
 
