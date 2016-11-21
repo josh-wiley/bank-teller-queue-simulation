@@ -28,7 +28,6 @@
 #include "../Queue/QueueArray.h"
 #include "Servicer.h"
 #include "Customer.h"
-#include <iostream> // TODO: REMOVE
 //
 //  Class Definition  //////////////////////////////////////////////////////////
 //
@@ -65,12 +64,12 @@ private:
 
     std::chrono::time_point< std::chrono::high_resolution_clock > start_time_; /**< Start time of simulation */
     std::chrono::time_point< std::chrono::high_resolution_clock > end_time_; /**< End time of simulation */
-    std::list< std::list< unsigned int > > line_lengths_; /**< List of line lengths, for each queue, after each event. */
+    std::list< std::list< unsigned int > > line_lengths_; /**< List of line lengths, parallel to the customer queues, containing their lengths after each event. */
 
-    std::shared_ptr< Queue < std::shared_ptr< Customer > > > shortest_queue() const; /**< Return pointer to shortest queue */
+    void enqueue_to_shortest_queue(std::shared_ptr< Customer >); /**< Enqueues customer to shortest queue */
     bool all_servicers_idle() const; /**< Return boolean value indicating if all servicers are idle. */
     unsigned int get_next_departure_time() const; /**< Returns next customer departure time */
-    bool is_waiting_customers(std::shared_ptr< Customer >&) const; /**< Returns boolean value indicating if customers are waiting in the queue, and returns a pointer to the customer who has been waiting the longest */
+    bool is_customer_waiting(std::shared_ptr< Customer >&); /**< Returns boolean value indicating if customers are waiting in the queue, and returns a pointer to the customer who has been waiting the longest */
     bool is_servicer_available(std::shared_ptr< Servicer >&) const; /**< Returns boolean value indicating if servicers are available, and returns a pointer the first available servicer via out parameter */
 
     template < class T, class ... V >

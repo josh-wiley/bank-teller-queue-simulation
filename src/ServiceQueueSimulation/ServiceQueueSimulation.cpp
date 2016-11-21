@@ -40,8 +40,7 @@ ServiceQueueSimulation::ServiceQueueSimulation(
     T queue_ptr,
     V ... rest_ptrs
 )
-    : current_sim_time_(0), max_line_length_(0),
-      total_line_length_(0), line_updates_(0)
+    : current_sim_time_(0)
 {
     // Events source iterators.
     auto events_cursor_it = events_ptr->begin();
@@ -75,6 +74,13 @@ ServiceQueueSimulation::ServiceQueueSimulation(
     
     // Add queues.
     add_queue(queue_ptr, rest_ptrs...);
+
+    // Add line length lists.
+    for (auto i = 0; i < customer_queues_.size(); i++)
+    {
+        // Add list.
+        line_lengths_.push_back(std::list< unsigned int >());
+    }
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -92,8 +98,7 @@ ServiceQueueSimulation::ServiceQueueSimulation(const ServiceQueueSimulation& ori
     : current_sim_time_(origin.current_sim_time_), servicers_(origin.servicers_),
       customer_queues_(origin.customer_queues_), customer_events_(origin.customer_events_),
       start_time_(origin.start_time_), end_time_(origin.end_time_),
-      max_line_length_(origin.max_line_length_), total_line_length_(origin.total_line_length_),
-      line_updates_(origin.line_updates_) {}
+      line_lengths_(origin.line_lengths_) {}
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
 //
@@ -218,14 +223,14 @@ unsigned int ServiceQueueSimulation::max_customer_wait_time() const
 //
 /**
  *
- * @details Computes and returns average line length
+ * @details Computes and returns average line length of simulation
  *
  * @return Average line length of simulation
  *
  */
 float ServiceQueueSimulation::average_line_length() const
 {
-    // Line update iterators.
+    // Line length iterators.
     auto ll_cursor_it = line_lengths_.begin();
     auto ll_end_it = line_lengths_.end();
 
@@ -238,8 +243,21 @@ float ServiceQueueSimulation::average_line_length() const
     while (ll_cursor_it != ll_end_it)
     {
         // Iterators.
+        auto cursor_it = ll_cursor_it->begin();
+        auto end_it = ll_cursor_it->end();
 
-        // Find average.
+        // Find sum.
+        while (cursor_it != end_it)
+        {
+            // Add.
+            sum += *cursor_it;
+
+            // Advance.
+            ++cursor_it;
+        }
+
+        // Add average to list.
+        line_length_averages.push_back(sum / ll_cursor_it->size());
 
         // Clear sum.
         sum = 0;
@@ -270,7 +288,7 @@ float ServiceQueueSimulation::average_line_length() const
 //
 /**
  *
- * @details Returns max line length
+ * @details Returns max line length of simulation
  *
  * @return Max line length of simulation
  *
@@ -288,8 +306,22 @@ unsigned int ServiceQueueSimulation::max_line_length() const
     while (ll_cursor_it != ll_end_it)
     {
         // Iterators.
+        auto cursor_it = ll_cursor_it->begin();
+        auto end_it = ll_cursor_it->end();
 
         // Find max.
+        while (cursor_it != end_it)
+        {
+            // Is max?
+            if (*cursor_it > max_line_length)
+            {
+                // Assign new max.
+                max_line_length = *cursor_it;
+            }
+
+            // Advance.
+            ++cursor_it;
+        }
 
         // Advance.
         ++ll_cursor_it;
@@ -379,7 +411,7 @@ void ServiceQueueSimulation::run()
             current_sim_time_ = next_arrival_time;
 
             // Enqueue.
-            shortest_queue()->enqueue(*next_arrival_it);
+            enqueue_to_shortest_queue(*next_arrival_it);
 
             // Advance iterator.
             ++next_arrival_it;
@@ -399,7 +431,7 @@ void ServiceQueueSimulation::run()
         }
 
         // Are waiting customers and servicers available?
-        while (is_servicer_available(servicer_ptr) && is_waiting_customers(customer_ptr))
+        while (is_servicer_available(servicer_ptr) && is_customer_waiting(customer_ptr))
         {
             // Service customer.
             servicer_ptr->service_customer(current_sim_time_, customer_ptr);
@@ -417,35 +449,46 @@ void ServiceQueueSimulation::run()
 //
 /**
  *
- * @details Returns pointer to shortest queue
+ * @details Enqueues customer pointer to shortest queue
  *
- * @return Smart pointer to shortest queue
+ * @param[in] customer_ptr
+ *            Smart pointer to the customer that should be enqueued.
  *
  */
-std::shared_ptr< Queue < std::shared_ptr< Customer > > > ServiceQueueSimulation::shortest_queue() const
+void ServiceQueueSimulation::enqueue_to_shortest_queue(std::shared_ptr< Customer > customer_ptr)
 {
     // Pointer to shortest queue, cursor, and end.
     auto shortest_queue_ptr_it = customer_queues_.begin();
-    auto cursor_it = next(shortest_queue_ptr_it);
-    auto end_it = customer_queues_.end();
+    auto cq_cursor_it = next(shortest_queue_ptr_it);
+    auto cq_end_it = customer_queues_.end();
 
+    // Line length iterators.
+    auto shortest_line_length_it = line_lengths_.begin();
+    auto ll_cursor_it = next(shortest_line_length_it);
 
     // Find smallest queue.
-    while(cursor_it != end_it)
+    while(cq_cursor_it != cq_end_it)
     {
         // Shorter than current shortest?
-        if ((*shortest_queue_ptr_it)->size() > (*cursor_it)->size())
+        if ((*shortest_queue_ptr_it)->size() > (*cq_cursor_it)->size())
         {
             // Update new shortest queue.
-            shortest_queue_ptr_it = cursor_it;
+            shortest_queue_ptr_it = cq_cursor_it;
+
+            // Update iterator to appropriate line length list.
+            shortest_line_length_it = ll_cursor_it;
         }
 
         // Advance.
-        ++cursor_it;
+        ++cq_cursor_it;
+        ++ll_cursor_it;
     }
 
-    // Return.
-    return *shortest_queue_ptr_it;
+    // Enqueue.
+    (*shortest_queue_ptr_it)->enqueue(customer_ptr);
+
+    // Update line length.
+    shortest_line_length_it->push_back((*shortest_queue_ptr_it)->size());
 }
 //
 //  Class Member Implementation  ///////////////////////////////////////////////
@@ -553,11 +596,14 @@ unsigned int ServiceQueueSimulation::get_next_departure_time() const
  * @details Returns a boolean value indicating if there are any customers
  *          waiting for service
  *
+ * @param[out] next_customer_ptr
+ *             Pointer to be assigned the customer who has been waiting the longest.
+ *
  * @return Boolean value indicating if there are any customers waiting for
  *         service
  *
  */
-bool ServiceQueueSimulation::is_waiting_customers(std::shared_ptr< Customer >& next_customer_ptr) const
+bool ServiceQueueSimulation::is_customer_waiting(std::shared_ptr< Customer >& next_customer_ptr)
 {
     // Get queue iterators.
     auto cq_cursor_it = customer_queues_.begin();
@@ -566,18 +612,26 @@ bool ServiceQueueSimulation::is_waiting_customers(std::shared_ptr< Customer >& n
     // List of queue pointers.
     auto loaded_queues = std::list< std::shared_ptr< Queue < std::shared_ptr< Customer > > > >();
 
+    // Line length iterators.
+    auto ll_cursor_it = line_lengths_.begin();
+
+    // List of iterators pointing to line lengths associated with the loaded queues.
+    auto line_lenghts_its = std::list< std::list< std::list< unsigned int > >::iterator >();
+
     // Check each.
     while (cq_cursor_it != cq_end_it)
     {
         // Not empty?
         if (!(*cq_cursor_it)->empty())
         {
-            // Add to list.
+            // Add to lists.
             loaded_queues.push_back(*cq_cursor_it);
+            line_lenghts_its.push_back(ll_cursor_it);
         }
 
         // Advance.
         ++cq_cursor_it;
+        ++ll_cursor_it;
     }
 
     // If no queues with customers, return.
@@ -589,34 +643,51 @@ bool ServiceQueueSimulation::is_waiting_customers(std::shared_ptr< Customer >& n
 
     // Get loaded queue iterators.
     auto lq_cursor_it = loaded_queues.begin();
-    auto l_end_it = loaded_queues.end();
+    auto lq_end_it = loaded_queues.end();
+
+    // Loaded line length iterators.
+    auto lll_cursor_it = line_lenghts_its.begin();
 
     // Queue to dequeue from.
     auto queue_to_dequeue_from_ptr = std::shared_ptr< Queue < std::shared_ptr< Customer > > >
         (*lq_cursor_it);
+    auto lll_to_dequeue_from = *lll_cursor_it;
 
     // Get first customer arrival time.
-    auto earliest_arrival_time = queue_to_dequeue_from_ptr->peek()->arrival_time();
+    auto earliest_arrival_time =
+        queue_to_dequeue_from_ptr
+            ->peek()
+            ->arrival_time();
 
     // Advance.
     ++lq_cursor_it;
+    ++lll_cursor_it;
 
     // Get queue to dequeue from.
-    while (lq_cursor_it != l_end_it)
+    while (lq_cursor_it != lq_end_it)
     {
         // Is earlier arrival time.
         if ((*lq_cursor_it)->peek()->arrival_time() < earliest_arrival_time)
         {
             // Save queue pointer.
-            queue_to_dequeue_from_ptr = std::shared_ptr< Queue < std::shared_ptr< Customer > > >
-                (*lq_cursor_it);
+            queue_to_dequeue_from_ptr =
+                std::shared_ptr
+                    < Queue < std::shared_ptr< Customer > > >
+                    (*lq_cursor_it);
 
             // Save new arrival time.
-            earliest_arrival_time = queue_to_dequeue_from_ptr->peek()->arrival_time();
+            earliest_arrival_time =
+                queue_to_dequeue_from_ptr
+                    ->peek()
+                    ->arrival_time();
+            
+            // Save iterator to list to keep track of line updates.
+            lll_to_dequeue_from = *lll_cursor_it;
         }
 
         // Advance.
         ++lq_cursor_it;
+        ++lll_cursor_it;
     }
 
     // Save.
@@ -624,6 +695,9 @@ bool ServiceQueueSimulation::is_waiting_customers(std::shared_ptr< Customer >& n
 
     // Dequeue.
     queue_to_dequeue_from_ptr->dequeue();
+
+    // Update line length.
+    lll_to_dequeue_from->push_back(queue_to_dequeue_from_ptr->size());
 
     // Return.
     return true;
@@ -634,6 +708,9 @@ bool ServiceQueueSimulation::is_waiting_customers(std::shared_ptr< Customer >& n
 /**
  *
  * @details Returns a boolean value indicating if a servicer is available
+ *
+ * @param[out] available_servicer
+ *             Pointer to assign an available servicer to
  *
  * @return Boolean value indicating if a servicer is available
  *
