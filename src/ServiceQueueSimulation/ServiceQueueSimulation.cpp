@@ -64,7 +64,7 @@ ServiceQueueSimulation::ServiceQueueSimulation(
     }
 
     // Create servicers.
-    for (auto i = 0; i < num_servicers; i++)
+    for (auto i = (unsigned int) 0; i < num_servicers; i++)
     {
         // Push new servicer to list.
         servicers_.push_back(
@@ -76,7 +76,7 @@ ServiceQueueSimulation::ServiceQueueSimulation(
     add_queue(queue_ptr, rest_ptrs...);
 
     // Add line length lists.
-    for (auto i = 0; i < customer_queues_.size(); i++)
+    for (auto i = (unsigned int) 0; i < customer_queues_.size(); i++)
     {
         // Add list.
         line_lengths_.push_back(std::list< unsigned int >());
